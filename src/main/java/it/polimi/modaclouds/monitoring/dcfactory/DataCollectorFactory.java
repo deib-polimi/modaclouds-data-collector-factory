@@ -41,17 +41,33 @@ public abstract class DataCollectorFactory {
 	private DDAHandler dda;
 	private ScheduledExecutorService executorService = Executors
 			.newSingleThreadScheduledExecutor();
-	private ScheduledFuture<?> kbPollingExecutorHandler;
+	private ScheduledFuture<?> kbSyncExecutorHandler;
 	private Map<String, Map<String, DataCollector>> dcByMetricByResourceId;
 	private KBHandler kb;
-	private int kbPollingPeriod;
+	private int kbSyncPeriod;
 	private boolean isSyncingWithKB = false;
 	private Set<String> monitoredResourcesIds;
 
 	// private Set<DataCollector> installedDataCollectors;
 
+	/**
+	 * This method will be called whenever synchronization with KB ends. The
+	 * data collector factory is notified and it can check whether it has to
+	 * update, delete or add new data collectors.
+	 */
 	protected abstract void syncedWithKB();
 
+	/**
+	 * 
+	 * @param dda
+	 *            Any implementation of the DDAHandler.
+	 *            {@link it.polimi.modaclouds.monitoring.dcfactory.connectors.RspCsparqlServerDDAHandler}
+	 *            provided in this version.
+	 * @param kb
+	 *            Any implementation of the KBHandler.
+	 *            {@link it.polimi.modaclouds.monitoring.dcfactory.connectors.FusekiKBHandler}
+	 *            provided in this version.
+	 */
 	public DataCollectorFactory(DDAHandler dda, KBHandler kb) {
 		this.dda = dda;
 		this.kb = kb;
@@ -59,20 +75,33 @@ public abstract class DataCollectorFactory {
 		monitoredResourcesIds = new HashSet<String>();
 	}
 
+	/**
+	 * Adds the id of a monitored resource, required to have the Data Collector
+	 * Factory retrieve the necessary Data Collectors from the KB.
+	 * 
+	 * @param monitoredResourceId
+	 */
 	public void addMonitoredResourceId(String monitoredResourceId) {
 		monitoredResourcesIds.add(monitoredResourceId);
 		logger.info("Resource with id {} was added to the monitored resources",
 				monitoredResourceId);
 	}
 
-	public void startPollingFromKB(int kbPollingPeriod) {
+	/**
+	 * Starts periodical synchronization with KB to retrieve data collectors
+	 * monitoring the specified resources.
+	 * 
+	 * @param kbSyncPeriod
+	 *            Interval in seconds between two subsequent synchronizations
+	 */
+	public void startSyncingWithKB(int kbSyncPeriod) {
 		logger.info("Starting synchronization with KB...");
 		if (isSyncingWithKB) {
-			logger.error("The Data Collector Factory is already polling from KB");
+			logger.error("The Data Collector Factory is already syncing with KB");
 			return;
 		}
-		this.kbPollingPeriod = kbPollingPeriod;
-		kbPollingExecutorHandler = executorService.scheduleWithFixedDelay(
+		this.kbSyncPeriod = kbSyncPeriod;
+		kbSyncExecutorHandler = executorService.scheduleWithFixedDelay(
 				new Runnable() {
 					@Override
 					public void run() {
@@ -88,7 +117,7 @@ public abstract class DataCollectorFactory {
 									e);
 						}
 					}
-				}, 0, kbPollingPeriod, TimeUnit.SECONDS);
+				}, 0, kbSyncPeriod, TimeUnit.SECONDS);
 		setIsSyncingWithKB(true);
 		logger.info("Syncing with KB started.");
 	}
@@ -97,11 +126,15 @@ public abstract class DataCollectorFactory {
 		this.isSyncingWithKB = isSyncingWithKB;
 	}
 
+	/**
+	 * 
+	 * @return true if the synchronization was already started
+	 */
 	public boolean isSyncingWithKB() {
 		return isSyncingWithKB;
 	}
 
-	public void syncWithKB() {
+	private void syncWithKB() {
 		Map<String, Map<String, DataCollector>> newDCByMetricByResourceId = new HashMap<String, Map<String, DataCollector>>();
 		logger.info("Syncing with KB...");
 		Set<DataCollector> newDataCollectors = kb
@@ -127,22 +160,58 @@ public abstract class DataCollectorFactory {
 		syncedWithKB();
 	}
 
+	/**
+	 * Getter for the local representation of data collectors, kept in sync with
+	 * the KB automatically. The requested data collector will be available only
+	 * if monitoring data for the metric and resource specified are required by
+	 * the monitoring platform. If {@code null} is returned, the dedicated data
+	 * collector should not send data.
+	 * 
+	 * @param monitoredResourceId
+	 *            The id of the resource monitored by the data collector
+	 * @param monitoredMetric
+	 *            The metric monitored by the data collector
+	 * @return the data collector monitoring metric {@code monitoredMetric} on
+	 *         resource with id {@code monitoredResourceId} if the data
+	 *         collector exists on the KB, {@code null} otherwise
+	 */
 	protected DataCollector getDataCollector(String monitoredResourceId,
-			String metric) {
+			String monitoredMetric) {
 		if (dcByMetricByResourceId.get(monitoredResourceId) == null)
 			return null;
-		return dcByMetricByResourceId.get(monitoredResourceId).get(metric);
+		return dcByMetricByResourceId.get(monitoredResourceId).get(
+				monitoredMetric);
 	}
-	
-	protected Map<String,String> getParameters(DataCollector dc){
+
+	/**
+	 * Retrieve parameters for data collector {@code dc} from the KB.
+	 * 
+	 * @param dc
+	 * @return a key-value Map containing parameters.
+	 */
+	protected Map<String, String> getParameters(DataCollector dc) {
 		return kb.getParameters(dc);
 	}
 
+	/**
+	 * The monitoring datum is sent to the DDA synchronously.
+	 * 
+	 * @param value
+	 * @param metric
+	 * @param monitoredResourceId
+	 */
 	protected void sendSyncMonitoringDatum(String value, String metric,
 			String monitoredResourceId) {
 		dda.sendSyncMonitoringDatum(value, metric, monitoredResourceId);
 	}
 
+	/**
+	 * The monitoring datum is sent to the DDA asynchronously.
+	 * 
+	 * @param value
+	 * @param metric
+	 * @param monitoredResourceId
+	 */
 	protected void sendAsyncMonitoringDatum(String value, String metric,
 			String monitoredResourceId) {
 		dda.sendAsyncMonitoringDatum(value, metric, monitoredResourceId);
