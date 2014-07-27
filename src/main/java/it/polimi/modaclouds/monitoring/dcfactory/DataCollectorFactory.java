@@ -16,10 +16,6 @@
  */
 package it.polimi.modaclouds.monitoring.dcfactory;
 
-import it.polimi.modaclouds.monitoring.dcfactory.connectors.DDAHandler;
-import it.polimi.modaclouds.monitoring.dcfactory.connectors.KBHandler;
-import it.polimi.modaclouds.qos_models.monitoring_ontology.DataCollector;
-
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -38,12 +34,12 @@ public abstract class DataCollectorFactory {
 	private final Logger logger = LoggerFactory
 			.getLogger(DataCollectorFactory.class);
 
-	private DDAHandler dda;
+	private DDAConnector dda;
 	private ScheduledExecutorService executorService = Executors
 			.newSingleThreadScheduledExecutor();
 	private ScheduledFuture<?> kbSyncExecutorHandler;
-	private Map<String, Map<String, DataCollector>> dcByMetricByResourceId;
-	private KBHandler kb;
+	private Map<String, Map<String, DCMetaData>> dcByMetricByResourceId;
+	private KBConnector kb;
 	private int kbSyncPeriod;
 	private boolean isSyncingWithKB = false;
 	private Set<String> monitoredResourcesIds;
@@ -61,17 +57,17 @@ public abstract class DataCollectorFactory {
 	 * 
 	 * @param dda
 	 *            Any implementation of the DDAHandler.
-	 *            {@link it.polimi.modaclouds.monitoring.dcfactory.connectors.RspCsparqlServerDDAHandler}
+	 *            {@link it.polimi.modaclouds.monitoring.dcfactory.ddaconnectors.RCSConnector}
 	 *            provided in this version.
 	 * @param kb
 	 *            Any implementation of the KBHandler.
-	 *            {@link it.polimi.modaclouds.monitoring.dcfactory.connectors.FusekiKBHandler}
+	 *            {@link it.polimi.modaclouds.monitoring.dcfactory.kbconnectors.FusekiConnector}
 	 *            provided in this version.
 	 */
-	public DataCollectorFactory(DDAHandler dda, KBHandler kb) {
+	public DataCollectorFactory(DDAConnector dda, KBConnector kb) {
 		this.dda = dda;
 		this.kb = kb;
-		dcByMetricByResourceId = new HashMap<String, Map<String, DataCollector>>();
+		dcByMetricByResourceId = new HashMap<String, Map<String, DCMetaData>>();
 		monitoredResourcesIds = new HashSet<String>();
 	}
 
@@ -135,18 +131,18 @@ public abstract class DataCollectorFactory {
 	}
 
 	private void syncWithKB() {
-		Map<String, Map<String, DataCollector>> newDCByMetricByResourceId = new HashMap<String, Map<String, DataCollector>>();
+		Map<String, Map<String, DCMetaData>> newDCByMetricByResourceId = new HashMap<String, Map<String, DCMetaData>>();
 		logger.info("Syncing with KB...");
-		Set<DataCollector> newDataCollectors = kb
-				.getDataCollectors(monitoredResourcesIds);
+		Set<DCMetaData> newDataCollectors = kb
+				.getDataCollectorsMetaData(monitoredResourcesIds);
 		if (newDataCollectors == null)
-			newDataCollectors = new HashSet<DataCollector>();
-		for (DataCollector dc : newDataCollectors) {
+			newDataCollectors = new HashSet<DCMetaData>();
+		for (DCMetaData dc : newDataCollectors) {
 			for (String resourceId : dc.getMonitoredResourcesIds()) {
-				Map<String, DataCollector> dcByMetric = newDCByMetricByResourceId
+				Map<String, DCMetaData> dcByMetric = newDCByMetricByResourceId
 						.get(resourceId);
 				if (dcByMetric == null) {
-					dcByMetric = new HashMap<String, DataCollector>();
+					dcByMetric = new HashMap<String, DCMetaData>();
 					newDCByMetricByResourceId.put(resourceId, dcByMetric);
 				}
 				dcByMetric.put(dc.getMonitoredMetric(), dc);
@@ -175,7 +171,7 @@ public abstract class DataCollectorFactory {
 	 *         resource with id {@code monitoredResourceId} if the data
 	 *         collector exists on the KB, {@code null} otherwise
 	 */
-	protected DataCollector getDataCollector(String monitoredResourceId,
+	protected DCMetaData getDataCollector(String monitoredResourceId,
 			String monitoredMetric) {
 		if (dcByMetricByResourceId.get(monitoredResourceId) == null)
 			return null;
@@ -183,15 +179,6 @@ public abstract class DataCollectorFactory {
 				monitoredMetric);
 	}
 
-	/**
-	 * Retrieve parameters for data collector {@code dc} from the KB.
-	 * 
-	 * @param dc
-	 * @return a key-value Map containing parameters.
-	 */
-	protected Map<String, String> getParameters(DataCollector dc) {
-		return kb.getParameters(dc);
-	}
 
 	/**
 	 * The monitoring datum is sent to the DDA synchronously.

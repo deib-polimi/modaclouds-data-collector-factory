@@ -14,9 +14,9 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package it.polimi.modaclouds.monitoring.dcfactory.connectors;
+package it.polimi.modaclouds.monitoring.dcfactory.ddaconnectors;
 
-import it.polimi.modaclouds.qos_models.monitoring_ontology.MO;
+import it.polimi.modaclouds.monitoring.dcfactory.DDAConnector;
 
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
@@ -34,16 +34,16 @@ import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.vocabulary.RDF;
 
-public class RspCsparqlServerDDAHandler implements DDAHandler {
+public class RCSConnector implements DDAConnector {
 
 	private final Logger logger = LoggerFactory
-			.getLogger(RspCsparqlServerDDAHandler.class);
+			.getLogger(RCSConnector.class);
 
 	private RSP_services_csparql_API csparql_api;
 	private ExecutorService execService = Executors.newSingleThreadExecutor();
 	private String ddaURL;
 
-	public RspCsparqlServerDDAHandler(String ddaURL) {
+	public RCSConnector(String ddaURL) {
 		this.ddaURL = ddaURL;
 		if (!ddaURL.endsWith("/"))
 			ddaURL += "/";
@@ -68,6 +68,7 @@ public class RspCsparqlServerDDAHandler implements DDAHandler {
 	}
 
 	private void send(String value, String metric, String monitoredResourceId) {
+		metric = metric.toLowerCase();
 		Model m = createModel(value, metric, monitoredResourceId);
 		String streamURI = getStreamURI(metric);
 		try {
@@ -85,15 +86,15 @@ public class RspCsparqlServerDDAHandler implements DDAHandler {
 
 	private Model createModel(String value, String metric,
 			String monitoredResourceId) {
-		String monDatumInstanceURI = MO.MonitoringDatum + "#"
+		String monDatumInstanceURI = RCSOntology.MonitoringDatum + "#"
 				+ UUID.randomUUID().toString();
 		Model m = ModelFactory.createDefaultModel();
 		m.createResource(monDatumInstanceURI)
-				.addProperty(RDF.type, MO.MonitoringDatum)
-				.addProperty(MO.metric, m.createTypedLiteral(metric))
-				.addProperty(MO.value,
+				.addProperty(RDF.type, RCSOntology.MonitoringDatum)
+				.addProperty(RCSOntology.metric, m.createTypedLiteral(metric))
+				.addProperty(RCSOntology.value,
 						m.createTypedLiteral(value, XSDDatatype.XSDdouble))
-				.addProperty(MO.resourceId,
+				.addProperty(RCSOntology.resourceId,
 						m.createTypedLiteral(monitoredResourceId));
 		return m;
 	}

@@ -14,17 +14,12 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package it.polimi.modaclouds.monitoring.dcfactory.connectors;
+package it.polimi.modaclouds.monitoring.dcfactory;
 
+import java.util.Set;
 
-public interface DDAHandler {
+public interface KBConnector {
 
-	void sendSyncMonitoringDatum(String value, String metric,
-			String monitoredResourceId);
-
-	void sendAsyncMonitoringDatum(String value, String metric,
-			String monitoredresourceId);
-	
-	
+	Set<DCMetaData> getDataCollectorsMetaData(Set<String> monitoredResourcesIds);
 
 }

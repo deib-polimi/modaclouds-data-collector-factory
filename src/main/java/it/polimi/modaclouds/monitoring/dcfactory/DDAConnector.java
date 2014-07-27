@@ -14,17 +14,17 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package it.polimi.modaclouds.monitoring.dcfactory.connectors;
+package it.polimi.modaclouds.monitoring.dcfactory;
 
-import it.polimi.modaclouds.qos_models.monitoring_ontology.DataCollector;
 
-import java.util.Map;
-import java.util.Set;
+public interface DDAConnector {
 
-public interface KBHandler {
+	void sendSyncMonitoringDatum(String value, String metric,
+			String monitoredResourceId);
 
-	Set<DataCollector> getDataCollectors(Set<String> monitoredResourcesIds);
-
-	Map<String, String> getParameters(DataCollector dc);
+	void sendAsyncMonitoringDatum(String value, String metric,
+			String monitoredresourceId);
+	
+	
 
 }
