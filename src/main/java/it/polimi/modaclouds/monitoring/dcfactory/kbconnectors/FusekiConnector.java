@@ -16,8 +16,6 @@
  */
 package it.polimi.modaclouds.monitoring.dcfactory.kbconnectors;
 
-import it.polimi.modaclouds.monitoring.dcfactory.DCMetaData;
-import it.polimi.modaclouds.monitoring.dcfactory.KBConnector;
 import it.polimi.modaclouds.monitoring.kb.api.FusekiKBAPI;
 
 import java.util.HashSet;

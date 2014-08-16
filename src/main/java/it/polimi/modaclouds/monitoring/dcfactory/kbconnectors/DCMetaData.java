@@ -1,4 +1,4 @@
-package it.polimi.modaclouds.monitoring.dcfactory;
+package it.polimi.modaclouds.monitoring.dcfactory.kbconnectors;
 
 import java.util.Map;
 import java.util.Set;

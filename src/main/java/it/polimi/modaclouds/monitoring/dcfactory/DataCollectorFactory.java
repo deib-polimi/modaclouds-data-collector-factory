@@ -16,6 +16,10 @@
  */
 package it.polimi.modaclouds.monitoring.dcfactory;
 
+import it.polimi.modaclouds.monitoring.dcfactory.ddaconnectors.DDAConnector;
+import it.polimi.modaclouds.monitoring.dcfactory.kbconnectors.DCMetaData;
+import it.polimi.modaclouds.monitoring.dcfactory.kbconnectors.KBConnector;
+
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;

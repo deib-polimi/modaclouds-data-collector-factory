@@ -16,8 +16,6 @@
  */
 package it.polimi.modaclouds.monitoring.dcfactory.ddaconnectors;
 
-import it.polimi.modaclouds.monitoring.dcfactory.DDAConnector;
-
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
