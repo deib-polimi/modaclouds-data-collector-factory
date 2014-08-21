@@ -20,6 +20,7 @@ import it.polimi.modaclouds.monitoring.dcfactory.ddaconnectors.DDAConnector;
 import it.polimi.modaclouds.monitoring.dcfactory.kbconnectors.DCMetaData;
 import it.polimi.modaclouds.monitoring.dcfactory.kbconnectors.KBConnector;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -175,14 +176,31 @@ public abstract class DataCollectorFactory {
 	 *         resource with id {@code monitoredResourceId} if the data
 	 *         collector exists on the KB, {@code null} otherwise
 	 */
-	protected DCMetaData getDataCollector(String monitoredResourceId,
+	public DCMetaData getDataCollector(String monitoredResourceId,
 			String monitoredMetric) {
 		if (dcByMetricByResourceId.get(monitoredResourceId) == null)
 			return null;
 		return dcByMetricByResourceId.get(monitoredResourceId).get(
-				monitoredMetric);
+				monitoredMetric.toLowerCase());
 	}
 
+	/**
+	 * Getter for the local representation of data collectors, kept in sync with
+	 * the KB automatically. Only data collectors for the resource specified
+	 * that are requested by the mnitoring platform are returned if any. Only
+	 * returned data collectors should send data for the resource specified.
+	 * 
+	 * @param monitoredResourceId
+	 *            The id of the resource monitored by the data collector
+	 * @return data collectors monitoring resource with id
+	 *         {@code monitoredResourceId}
+	 */
+	public Collection<DCMetaData> getDataCollectors(String monitoredResourceId) {
+		Set<DCMetaData> dcs = new HashSet<DCMetaData>();
+		if (dcByMetricByResourceId.get(monitoredResourceId) == null)
+			return dcs;
+		return dcByMetricByResourceId.get(monitoredResourceId).values();
+	}
 
 	/**
 	 * The monitoring datum is sent to the DDA synchronously.
@@ -191,9 +209,9 @@ public abstract class DataCollectorFactory {
 	 * @param metric
 	 * @param monitoredResourceId
 	 */
-	protected void sendSyncMonitoringDatum(String value, String metric,
+	public void sendSyncMonitoringDatum(String value, String metric,
 			String monitoredResourceId) {
-		dda.sendSyncMonitoringDatum(value, metric, monitoredResourceId);
+		dda.sendSyncMonitoringDatum(value, metric.toLowerCase(), monitoredResourceId);
 	}
 
 	/**
@@ -203,8 +221,8 @@ public abstract class DataCollectorFactory {
 	 * @param metric
 	 * @param monitoredResourceId
 	 */
-	protected void sendAsyncMonitoringDatum(String value, String metric,
+	public void sendAsyncMonitoringDatum(String value, String metric,
 			String monitoredResourceId) {
-		dda.sendAsyncMonitoringDatum(value, metric, monitoredResourceId);
+		dda.sendAsyncMonitoringDatum(value, metric.toLowerCase(), monitoredResourceId);
 	}
 }

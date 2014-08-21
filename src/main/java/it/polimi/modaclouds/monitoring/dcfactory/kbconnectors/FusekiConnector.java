@@ -26,7 +26,8 @@ public class FusekiConnector implements KBConnector {
 	private FusekiKBAPI fusekiKBAPI;
 
 	public FusekiConnector(String knowledgeBaseURL) {
-		fusekiKBAPI = new FusekiKBAPI(knowledgeBaseURL);
+		fusekiKBAPI = new FusekiKBAPI(knowledgeBaseURL,
+				"it.polimi.modaclouds.monitoring.dcfactory.kbconnectors");
 	}
 
 	@Override
@@ -34,12 +35,15 @@ public class FusekiConnector implements KBConnector {
 			Set<String> monitoredResourcesIds) {
 		Set<DCMetaData> dataCollectorsMetaData = new HashSet<DCMetaData>();
 		for (String monitoredResourceId : monitoredResourcesIds) {
-			Set<? extends DCMetaData> dcs = fusekiKBAPI.getAll(
-					FusekiDCMetaData.class, FusekiVocabulary.monitoredResourcesIds,
-					monitoredResourceId);
+			Set<? extends DCMetaData> dcs = fusekiKBAPI
+					.getAll(FusekiDCMetaData.class);
 			if (dcs == null)
 				dcs = new HashSet<DCMetaData>();
-			dataCollectorsMetaData.addAll(dcs);
+			for (DCMetaData dc : dcs) {
+				if (dc.getMonitoredResourcesIds().contains(monitoredResourceId))
+					dataCollectorsMetaData.add(dc);
+			}
+
 		}
 		return dataCollectorsMetaData;
 	}

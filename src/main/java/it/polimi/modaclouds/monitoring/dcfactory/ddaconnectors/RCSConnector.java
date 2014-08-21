@@ -78,7 +78,7 @@ public class RCSConnector implements DDAConnector {
 	}
 
 	private String getStreamURI(String metric) {
-		String streamURI = ddaURL.toString() + "/streams/" + metric;
+		String streamURI = "http://www.modaclouds.eu/streams/" + metric;
 		return streamURI;
 	}
 

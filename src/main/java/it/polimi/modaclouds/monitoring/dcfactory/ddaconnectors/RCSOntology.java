@@ -32,7 +32,8 @@ public class RCSOntology {
 	
 	public static Property metric = makeProperty(RCSVocabulary.metric);
 	public static final Property value = makeProperty(RCSVocabulary.value);
-	public static final Property resourceId = makeProperty(RCSVocabulary.resourceId);;
+	public static final Property resourceId = makeProperty(RCSVocabulary.resourceId);
+	public static final Property timestamp = makeProperty(RCSVocabulary.timestamp);
 
 	public static OntClass MonitoringDatum = makeClass(RCSVocabulary.MonitoringDatum);
 
@@ -47,6 +48,14 @@ public class RCSOntology {
 	
 	private static Property makeProperty(String propertyName) {
 		return model.createProperty(URI + propertyName);
+	}
+	
+	public static String shortForm(Property property) {
+		return prefix+":"+property.getLocalName();
+	}
+	
+	public static String shortForm(OntClass ontClass) {
+		return prefix+":"+ontClass.getLocalName();
 	}
 
 }
