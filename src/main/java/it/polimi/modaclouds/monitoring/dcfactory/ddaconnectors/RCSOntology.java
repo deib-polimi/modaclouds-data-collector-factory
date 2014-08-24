@@ -22,7 +22,7 @@ import com.hp.hpl.jena.ontology.OntModelSpec;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Property;
 
-class RCSOntology {
+public class RCSOntology {
 
 	public static final String URI = "http://www.modaclouds.eu/rdfs/1.0/monitoringdata#";
 	public static String prefix = "modamd";
