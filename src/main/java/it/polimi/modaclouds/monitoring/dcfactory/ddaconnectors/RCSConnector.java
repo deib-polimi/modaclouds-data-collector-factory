@@ -66,7 +66,6 @@ public class RCSConnector implements DDAConnector {
 	}
 
 	private void send(String value, String metric, String monitoredResourceId) {
-		metric = metric.toLowerCase();
 		Model m = createModel(value, metric, monitoredResourceId);
 		String streamURI = getStreamURI(metric);
 		try {

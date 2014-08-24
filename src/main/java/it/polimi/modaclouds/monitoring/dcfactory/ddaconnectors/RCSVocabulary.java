@@ -16,7 +16,7 @@
  */
 package it.polimi.modaclouds.monitoring.dcfactory.ddaconnectors;
 
-public class RCSVocabulary {
+class RCSVocabulary {
 
 	public static final String MonitoringDatum = "MonitoringDatum";
 

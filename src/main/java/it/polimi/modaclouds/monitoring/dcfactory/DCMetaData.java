@@ -14,23 +14,22 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package it.polimi.modaclouds.monitoring.dcfactory.kbconnectors;
+package it.polimi.modaclouds.monitoring.dcfactory;
 
-import it.polimi.modaclouds.monitoring.kb.api.KBEntity;
-
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-public class FusekiDCMetaData extends KBEntity implements DCMetaData{
+public class DCMetaData{
 
+	private String id;
 	private String monitoredMetric;
 	private Map<String, String> parameters = new HashMap<String, String>();
+//	private Set<String> monitoredResourcesClasses = new HashSet<String>();
+//	private Set<String> monitoredResourcesTypes = new HashSet<String>();
 	private Set<String> monitoredResourcesIds = new HashSet<String>();
 	
-	@Override
 	public Map<String, String> getParameters() {
 		return parameters;
 	}
@@ -43,7 +42,6 @@ public class FusekiDCMetaData extends KBEntity implements DCMetaData{
 		parameters.put(key, value);
 	}
 
-	@Override
 	public String getMonitoredMetric() {
 		return monitoredMetric;
 	}
@@ -52,7 +50,6 @@ public class FusekiDCMetaData extends KBEntity implements DCMetaData{
 		this.monitoredMetric = monitoredMetric;
 	}
 
-	@Override
 	public Set<String> getMonitoredResourcesIds() {
 		return monitoredResourcesIds;
 	}
@@ -69,7 +66,8 @@ public class FusekiDCMetaData extends KBEntity implements DCMetaData{
 	@Override
 	public int hashCode() {
 		final int prime = 31;
-		int result = super.hashCode();
+		int result = 1;
+		result = prime * result + ((id == null) ? 0 : id.hashCode());
 		result = prime * result
 				+ ((monitoredMetric == null) ? 0 : monitoredMetric.hashCode());
 		result = prime
@@ -85,11 +83,16 @@ public class FusekiDCMetaData extends KBEntity implements DCMetaData{
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;
-		if (!super.equals(obj))
+		if (obj == null)
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		FusekiDCMetaData other = (FusekiDCMetaData) obj;
+		DCMetaData other = (DCMetaData) obj;
+		if (id == null) {
+			if (other.id != null)
+				return false;
+		} else if (!id.equals(other.id))
+			return false;
 		if (monitoredMetric == null) {
 			if (other.monitoredMetric != null)
 				return false;
@@ -110,9 +113,33 @@ public class FusekiDCMetaData extends KBEntity implements DCMetaData{
 
 	@Override
 	public String toString() {
-		return "DataCollector [monitoredMetric=" + monitoredMetric
-				+ ", parameters=" + parameters.toString()
-				+ ", monitoredResourceIds="
-				+ Arrays.toString(monitoredResourcesIds.toArray()) + "]";
+		return "DCMetaData [id=" + id + ", monitoredMetric=" + monitoredMetric
+				+ ", parameters=" + parameters + ", monitoredResourcesIds="
+				+ monitoredResourcesIds + "]";
 	}
+
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
+	}
+
+//	public Set<String> getMonitoredResourcesClasses() {
+//		return monitoredResourcesClasses;
+//	}
+//
+//	public void setMonitoredResourcesClasses(
+//			Set<String> monitoredResourcesClasses) {
+//		this.monitoredResourcesClasses = monitoredResourcesClasses;
+//	}
+//
+//	public Set<String> getMonitoredResourcesTypes() {
+//		return monitoredResourcesTypes;
+//	}
+//
+//	public void setMonitoredResourcesTypes(Set<String> monitoredResourcesTypes) {
+//		this.monitoredResourcesTypes = monitoredResourcesTypes;
+//	}
 }

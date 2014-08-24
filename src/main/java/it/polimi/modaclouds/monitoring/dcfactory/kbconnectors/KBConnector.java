@@ -16,6 +16,8 @@
  */
 package it.polimi.modaclouds.monitoring.dcfactory.kbconnectors;
 
+import it.polimi.modaclouds.monitoring.dcfactory.DCMetaData;
+
 import java.util.Set;
 
 public interface KBConnector {

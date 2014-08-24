@@ -17,7 +17,6 @@
 package it.polimi.modaclouds.monitoring.dcfactory;
 
 import it.polimi.modaclouds.monitoring.dcfactory.ddaconnectors.DDAConnector;
-import it.polimi.modaclouds.monitoring.dcfactory.kbconnectors.DCMetaData;
 import it.polimi.modaclouds.monitoring.dcfactory.kbconnectors.KBConnector;
 
 import java.util.Collection;
@@ -122,6 +121,12 @@ public abstract class DataCollectorFactory {
 		setIsSyncingWithKB(true);
 		logger.info("Syncing with KB started.");
 	}
+	
+	public void stopSyncingWithKB() {
+		kbSyncExecutorHandler.cancel(true);
+		setIsSyncingWithKB(false);
+		logger.info("Syncing with KB stopped.");
+	}
 
 	private void setIsSyncingWithKB(boolean isSyncingWithKB) {
 		this.isSyncingWithKB = isSyncingWithKB;
@@ -150,11 +155,11 @@ public abstract class DataCollectorFactory {
 					dcByMetric = new HashMap<String, DCMetaData>();
 					newDCByMetricByResourceId.put(resourceId, dcByMetric);
 				}
-				dcByMetric.put(dc.getMonitoredMetric(), dc);
+				dcByMetric.put(dc.getMonitoredMetric().toLowerCase(), dc);
 			}
 			logger.info("Data collector retrieved from KB: {}", dc.toString());
 		}
-		logger.info("{} data collectors were downloaded from the KB",
+		logger.info("{} data collectors were downloaded from KB",
 				newDataCollectors.size());
 		dcByMetricByResourceId = newDCByMetricByResourceId;
 		logger.info("Data collectors synced with KB.");
