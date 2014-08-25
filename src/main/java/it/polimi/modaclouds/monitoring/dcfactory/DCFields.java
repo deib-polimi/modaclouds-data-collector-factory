@@ -14,17 +14,11 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package it.polimi.modaclouds.monitoring.dcfactory.kbconnectors;
+package it.polimi.modaclouds.monitoring.dcfactory;
 
-import it.polimi.modaclouds.monitoring.dcfactory.DCMetaData;
-import it.polimi.modaclouds.qos_models.monitoring_ontology.Resource;
-
-import java.util.Set;
-
-public interface KBConnector {
-
-	Set<DCMetaData> getDataCollectorsMetaData();
-
-	Resource getResourceById(String resourceId);
+public class DCFields {
+	
+	public static final String id = "id";
+	public static final String monitoringRuleId = "monitoringRuleId";
 
 }

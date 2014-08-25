@@ -19,6 +19,8 @@ package it.polimi.modaclouds.monitoring.dcfactory.kbconnectors;
 import it.polimi.modaclouds.monitoring.dcfactory.DCMetaData;
 import it.polimi.modaclouds.monitoring.kb.api.DeserializationException;
 import it.polimi.modaclouds.monitoring.kb.api.FusekiKBAPI;
+import it.polimi.modaclouds.qos_models.monitoring_ontology.Resource;
+import it.polimi.modaclouds.qos_models.monitoring_ontology.Vocabulary;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -37,23 +39,28 @@ public class FusekiConnector implements KBConnector {
 	}
 
 	@Override
-	public Set<DCMetaData> getDataCollectorsMetaData(
-			Set<String> monitoredResourcesIds) {
-		Set<DCMetaData> myDataCollectorsMetaData = new HashSet<DCMetaData>();
-		Set<DCMetaData> allDCMetaData = new HashSet<DCMetaData>();
+	public Set<DCMetaData> getDataCollectorsMetaData() {
+		// TODO should it retrieve only the required ones?
+		Set<DCMetaData> dataCollectorsMetaData = new HashSet<DCMetaData>();
 		try {
-			allDCMetaData = fusekiKBAPI.getAll(DCMetaData.class);
+			dataCollectorsMetaData = fusekiKBAPI.getAll(DCMetaData.class);
 		} catch (DeserializationException e) {
 			logger.error(
 					"Error while retriving data collectors meta data from KB",
 					e);
 		}
-		if (allDCMetaData != null) {
-			for (DCMetaData dcMetaData : allDCMetaData) {
-				if (!Collections.disjoint(dcMetaData.getMonitoredResourcesIds(), monitoredResourcesIds))
-					myDataCollectorsMetaData.add(dcMetaData);
-			}
+		return dataCollectorsMetaData;
+	}
+
+	@Override
+	public Resource getResourceById(String resourceId) {
+		try {
+			return (Resource) fusekiKBAPI.getEntityById(resourceId,
+					Vocabulary.resourceIdParameterName);
+		} catch (Exception e) {
+			logger.error("Could not retrieve resource with {} {}",
+					Vocabulary.resourceIdParameterName, resourceId, e);
+			return null;
 		}
-		return myDataCollectorsMetaData;
 	}
 }

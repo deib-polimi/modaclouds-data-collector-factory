@@ -18,6 +18,8 @@ package it.polimi.modaclouds.monitoring.dcfactory;
 
 import it.polimi.modaclouds.monitoring.dcfactory.ddaconnectors.DDAConnector;
 import it.polimi.modaclouds.monitoring.dcfactory.kbconnectors.KBConnector;
+import it.polimi.modaclouds.qos_models.monitoring_ontology.Resource;
+import it.polimi.modaclouds.qos_models.monitoring_ontology.Vocabulary;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -32,6 +34,8 @@ import java.util.concurrent.TimeUnit;
 import org.apache.jena.atlas.web.HttpException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.Collections2;
 
 public abstract class DataCollectorFactory {
 
@@ -121,7 +125,7 @@ public abstract class DataCollectorFactory {
 		setIsSyncingWithKB(true);
 		logger.info("Syncing with KB started.");
 	}
-	
+
 	public void stopSyncingWithKB() {
 		kbSyncExecutorHandler.cancel(true);
 		setIsSyncingWithKB(false);
@@ -143,27 +147,51 @@ public abstract class DataCollectorFactory {
 	private void syncWithKB() {
 		Map<String, Map<String, DCMetaData>> newDCByMetricByResourceId = new HashMap<String, Map<String, DCMetaData>>();
 		logger.info("Syncing with KB...");
-		Set<DCMetaData> newDataCollectors = kb
-				.getDataCollectorsMetaData(monitoredResourcesIds);
+		Set<DCMetaData> newDataCollectors = kb.getDataCollectorsMetaData();
 		if (newDataCollectors == null)
 			newDataCollectors = new HashSet<DCMetaData>();
-		for (DCMetaData dc : newDataCollectors) {
-			for (String resourceId : dc.getMonitoredResourcesIds()) {
-				Map<String, DCMetaData> dcByMetric = newDCByMetricByResourceId
-						.get(resourceId);
-				if (dcByMetric == null) {
-					dcByMetric = new HashMap<String, DCMetaData>();
-					newDCByMetricByResourceId.put(resourceId, dcByMetric);
-				}
-				dcByMetric.put(dc.getMonitoredMetric().toLowerCase(), dc);
-			}
-			logger.info("Data collector retrieved from KB: {}", dc.toString());
-		}
 		logger.info("{} data collectors were downloaded from KB",
 				newDataCollectors.size());
+		for (String resourceId : monitoredResourcesIds) {
+			for (DCMetaData dc : newDataCollectors) {
+				if (isMonitoredBy(resourceId, dc)) {
+					Map<String, DCMetaData> dcByMetric = newDCByMetricByResourceId
+							.get(resourceId);
+					if (dcByMetric == null) {
+						dcByMetric = new HashMap<String, DCMetaData>();
+						newDCByMetricByResourceId.put(resourceId, dcByMetric);
+					}
+					dcByMetric.put(dc.getMonitoredMetric().toLowerCase(), dc);
+				}
+			}
+		}
 		dcByMetricByResourceId = newDCByMetricByResourceId;
 		logger.info("Data collectors synced with KB.");
 		syncedWithKB();
+	}
+
+	private boolean isMonitoredBy(String resourceId, DCMetaData dc) {
+		if (dc.getMonitoredResourcesIds().contains(resourceId))
+			return true;
+		if (!dc.getMonitoredResourcesIds().isEmpty())
+			return false;
+		Resource resource = kb.getResourceById(resourceId);
+		if (resource == null) {
+			logger.error("There is no resource with {} {} on the KB",
+					Vocabulary.resourceIdParameterName, resourceId);
+			return false;
+		}
+		for (String type : dc.getMonitoredResourcesTypes()) {
+			if (type.equalsIgnoreCase(resource.getType()))
+				return true;
+		}
+		if (!dc.getMonitoredResourcesTypes().isEmpty())
+			return false;
+		for (String clazz : dc.getMonitoredResourcesClasses()) {
+			if (clazz.equalsIgnoreCase(resource.getClass().getSimpleName()))
+				return true;
+		}
+		return false;
 	}
 
 	/**
@@ -216,7 +244,8 @@ public abstract class DataCollectorFactory {
 	 */
 	public void sendSyncMonitoringDatum(String value, String metric,
 			String monitoredResourceId) {
-		dda.sendSyncMonitoringDatum(value, metric.toLowerCase(), monitoredResourceId);
+		dda.sendSyncMonitoringDatum(value, metric.toLowerCase(),
+				monitoredResourceId);
 	}
 
 	/**
@@ -228,6 +257,7 @@ public abstract class DataCollectorFactory {
 	 */
 	public void sendAsyncMonitoringDatum(String value, String metric,
 			String monitoredResourceId) {
-		dda.sendAsyncMonitoringDatum(value, metric.toLowerCase(), monitoredResourceId);
+		dda.sendAsyncMonitoringDatum(value, metric.toLowerCase(),
+				monitoredResourceId);
 	}
 }

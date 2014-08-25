@@ -20,15 +20,29 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 public class DCMetaData{
 
 	private String id;
 	private String monitoredMetric;
 	private Map<String, String> parameters = new HashMap<String, String>();
-//	private Set<String> monitoredResourcesClasses = new HashSet<String>();
-//	private Set<String> monitoredResourcesTypes = new HashSet<String>();
+	private Set<String> monitoredResourcesClasses = new HashSet<String>();
+	private Set<String> monitoredResourcesTypes = new HashSet<String>();
 	private Set<String> monitoredResourcesIds = new HashSet<String>();
+	private String monitoringRuleId;
+	
+	public String getMonitoringRuleId() {
+		return monitoringRuleId;
+	}
+
+	public void setMonitoringRuleId(String monitoringRuleId) {
+		this.monitoringRuleId = monitoringRuleId;
+	}
+
+	public DCMetaData() {
+		id = UUID.randomUUID().toString();
+	}
 	
 	public Map<String, String> getParameters() {
 		return parameters;
@@ -61,6 +75,14 @@ public class DCMetaData{
 	public void addMonitoredResourceId(String monitoredResourceId) {
 		monitoredResourcesIds.add(monitoredResourceId);
 	}
+	
+	public void addMonitoredResourceType(String monitoredResourceType) {
+		monitoredResourcesTypes.add(monitoredResourceType);
+	}
+	
+	public void addMonitoredResourceClass(String monitoredResourceClass) {
+		monitoredResourcesClasses.add(monitoredResourceClass);
+	}
 
 
 	@Override
@@ -72,8 +94,19 @@ public class DCMetaData{
 				+ ((monitoredMetric == null) ? 0 : monitoredMetric.hashCode());
 		result = prime
 				* result
+				+ ((monitoredResourcesClasses == null) ? 0
+						: monitoredResourcesClasses.hashCode());
+		result = prime
+				* result
 				+ ((monitoredResourcesIds == null) ? 0 : monitoredResourcesIds
 						.hashCode());
+		result = prime
+				* result
+				+ ((monitoredResourcesTypes == null) ? 0
+						: monitoredResourcesTypes.hashCode());
+		result = prime
+				* result
+				+ ((monitoringRuleId == null) ? 0 : monitoringRuleId.hashCode());
 		result = prime * result
 				+ ((parameters == null) ? 0 : parameters.hashCode());
 		return result;
@@ -98,10 +131,27 @@ public class DCMetaData{
 				return false;
 		} else if (!monitoredMetric.equals(other.monitoredMetric))
 			return false;
+		if (monitoredResourcesClasses == null) {
+			if (other.monitoredResourcesClasses != null)
+				return false;
+		} else if (!monitoredResourcesClasses
+				.equals(other.monitoredResourcesClasses))
+			return false;
 		if (monitoredResourcesIds == null) {
 			if (other.monitoredResourcesIds != null)
 				return false;
 		} else if (!monitoredResourcesIds.equals(other.monitoredResourcesIds))
+			return false;
+		if (monitoredResourcesTypes == null) {
+			if (other.monitoredResourcesTypes != null)
+				return false;
+		} else if (!monitoredResourcesTypes
+				.equals(other.monitoredResourcesTypes))
+			return false;
+		if (monitoringRuleId == null) {
+			if (other.monitoringRuleId != null)
+				return false;
+		} else if (!monitoringRuleId.equals(other.monitoringRuleId))
 			return false;
 		if (parameters == null) {
 			if (other.parameters != null)
@@ -114,8 +164,11 @@ public class DCMetaData{
 	@Override
 	public String toString() {
 		return "DCMetaData [id=" + id + ", monitoredMetric=" + monitoredMetric
-				+ ", parameters=" + parameters + ", monitoredResourcesIds="
-				+ monitoredResourcesIds + "]";
+				+ ", parameters=" + parameters + ", monitoredResourcesClasses="
+				+ monitoredResourcesClasses + ", monitoredResourcesTypes="
+				+ monitoredResourcesTypes + ", monitoredResourcesIds="
+				+ monitoredResourcesIds + ", monitoringRuleId="
+				+ monitoringRuleId + "]";
 	}
 
 	public String getId() {
@@ -126,20 +179,21 @@ public class DCMetaData{
 		this.id = id;
 	}
 
-//	public Set<String> getMonitoredResourcesClasses() {
-//		return monitoredResourcesClasses;
-//	}
-//
-//	public void setMonitoredResourcesClasses(
-//			Set<String> monitoredResourcesClasses) {
-//		this.monitoredResourcesClasses = monitoredResourcesClasses;
-//	}
-//
-//	public Set<String> getMonitoredResourcesTypes() {
-//		return monitoredResourcesTypes;
-//	}
-//
-//	public void setMonitoredResourcesTypes(Set<String> monitoredResourcesTypes) {
-//		this.monitoredResourcesTypes = monitoredResourcesTypes;
-//	}
+	public Set<String> getMonitoredResourcesClasses() {
+		return monitoredResourcesClasses;
+	}
+
+	public void setMonitoredResourcesClasses(
+			Set<String> monitoredResourcesClasses) {
+		this.monitoredResourcesClasses = monitoredResourcesClasses;
+	}
+
+	public Set<String> getMonitoredResourcesTypes() {
+		return monitoredResourcesTypes;
+	}
+
+	public void setMonitoredResourcesTypes(Set<String> monitoredResourcesTypes) {
+		this.monitoredResourcesTypes = monitoredResourcesTypes;
+	}
+
 }
