@@ -35,8 +35,6 @@ import org.apache.jena.atlas.web.HttpException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.Collections2;
-
 public abstract class DataCollectorFactory {
 
 	private final Logger logger = LoggerFactory

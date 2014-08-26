@@ -51,7 +51,7 @@ public class RCSConnector implements DDAConnector {
 	@Override
 	public void sendSyncMonitoringDatum(String value, String metric,
 			String monitoredResourceId) {
-		send(value, metric, monitoredResourceId);
+		send(value, metric.toLowerCase(), monitoredResourceId);
 	}
 
 	@Override
@@ -60,7 +60,7 @@ public class RCSConnector implements DDAConnector {
 		execService.execute(new Runnable() {
 			@Override
 			public void run() {
-				send(value, metric, monitoredResourceId);
+				send(value, metric.toLowerCase(), monitoredResourceId);
 			}
 		});
 	}
@@ -88,11 +88,11 @@ public class RCSConnector implements DDAConnector {
 		Model m = ModelFactory.createDefaultModel();
 		m.createResource(monDatumInstanceURI)
 				.addProperty(RDF.type, RCSOntology.MonitoringDatum)
-				.addProperty(RCSOntology.metric, m.createTypedLiteral(metric))
+				.addProperty(RCSOntology.metric, m.createTypedLiteral(metric, XSDDatatype.XSDstring))
 				.addProperty(RCSOntology.value,
 						m.createTypedLiteral(value, XSDDatatype.XSDdouble))
 				.addProperty(RCSOntology.resourceId,
-						m.createTypedLiteral(monitoredResourceId));
+						m.createTypedLiteral(monitoredResourceId, XSDDatatype.XSDstring));
 		return m;
 	}
 
