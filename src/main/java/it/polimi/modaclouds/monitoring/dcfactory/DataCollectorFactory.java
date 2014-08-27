@@ -153,6 +153,7 @@ public abstract class DataCollectorFactory {
 		for (String resourceId : monitoredResourcesIds) {
 			for (DCMetaData dc : newDataCollectors) {
 				if (isMonitoredBy(resourceId, dc)) {
+					logger.info("Resource {} required to be monitored according to {}", resourceId, dc.toString());
 					Map<String, DCMetaData> dcByMetric = newDCByMetricByResourceId
 							.get(resourceId);
 					if (dcByMetric == null) {
