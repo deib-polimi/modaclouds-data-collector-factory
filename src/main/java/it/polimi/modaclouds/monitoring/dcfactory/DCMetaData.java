@@ -89,7 +89,6 @@ public class DCMetaData{
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((id == null) ? 0 : id.hashCode());
 		result = prime * result
 				+ ((monitoredMetric == null) ? 0 : monitoredMetric.hashCode());
 		result = prime
@@ -121,11 +120,6 @@ public class DCMetaData{
 		if (getClass() != obj.getClass())
 			return false;
 		DCMetaData other = (DCMetaData) obj;
-		if (id == null) {
-			if (other.id != null)
-				return false;
-		} else if (!id.equals(other.id))
-			return false;
 		if (monitoredMetric == null) {
 			if (other.monitoredMetric != null)
 				return false;
