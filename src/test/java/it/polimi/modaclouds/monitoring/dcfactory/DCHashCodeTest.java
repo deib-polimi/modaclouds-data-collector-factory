@@ -30,7 +30,7 @@ public class DCHashCodeTest {
 	}
 	
 	@Test
-	public void normalDC() {
+	public void dcWithDifferentID() {
 		DCMetaData dc1 = new DCMetaData();
 		DCMetaData dc2 = new DCMetaData();
 		dc1.setId("id1");
@@ -43,6 +43,17 @@ public class DCHashCodeTest {
 		dc2.addMonitoredResourceClass("myresource2");
 		dc2.addParameter("key", "value");
 		dc2.setMonitoringRuleId("ruleid");
+		assertTrue(dc1.hashCode()==dc2.hashCode());
+	}
+	
+	@Test
+	public void dcWithDifferentRuleID() {
+		DCMetaData dc1 = new DCMetaData();
+		DCMetaData dc2 = new DCMetaData();
+		dc1.setId("id1");
+		dc1.setId("id2");
+		dc1.setMonitoringRuleId("ruleId1");
+		dc1.setMonitoringRuleId("ruleId2");
 		assertTrue(dc1.hashCode()==dc2.hashCode());
 	}
 
