@@ -103,6 +103,9 @@ public class DCMetaData{
 				* result
 				+ ((monitoredResourcesTypes == null) ? 0
 						: monitoredResourcesTypes.hashCode());
+		result = prime
+				* result
+				+ ((monitoringRuleId == null) ? 0 : monitoringRuleId.hashCode());
 		result = prime * result
 				+ ((parameters == null) ? 0 : parameters.hashCode());
 		return result;
@@ -138,6 +141,11 @@ public class DCMetaData{
 				return false;
 		} else if (!monitoredResourcesTypes
 				.equals(other.monitoredResourcesTypes))
+			return false;
+		if (monitoringRuleId == null) {
+			if (other.monitoringRuleId != null)
+				return false;
+		} else if (!monitoringRuleId.equals(other.monitoringRuleId))
 			return false;
 		if (parameters == null) {
 			if (other.parameters != null)
