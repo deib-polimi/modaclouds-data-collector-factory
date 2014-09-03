@@ -19,7 +19,7 @@ package it.polimi.modaclouds.monitoring.dcfactory;
 import it.polimi.modaclouds.monitoring.dcfactory.ddaconnectors.DDAConnector;
 import it.polimi.modaclouds.monitoring.dcfactory.kbconnectors.KBConnector;
 import it.polimi.modaclouds.qos_models.monitoring_ontology.Resource;
-import it.polimi.modaclouds.qos_models.monitoring_ontology.Vocabulary;
+import it.polimi.modaclouds.qos_models.monitoring_ontology.MOVocabulary;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -177,7 +177,7 @@ public abstract class DataCollectorFactory {
 		Resource resource = kb.getResourceById(resourceId);
 		if (resource == null) {
 			logger.error("There is no resource with {} {} on the KB",
-					Vocabulary.resourceIdParameterName, resourceId);
+					MOVocabulary.resourceIdParameterName, resourceId);
 			return false;
 		}
 		for (String type : dc.getMonitoredResourcesTypes()) {

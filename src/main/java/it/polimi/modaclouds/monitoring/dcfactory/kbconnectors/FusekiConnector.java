@@ -17,12 +17,12 @@
 package it.polimi.modaclouds.monitoring.dcfactory.kbconnectors;
 
 import it.polimi.modaclouds.monitoring.dcfactory.DCMetaData;
+import it.polimi.modaclouds.monitoring.dcfactory.DCVocabulary;
 import it.polimi.modaclouds.monitoring.kb.api.DeserializationException;
 import it.polimi.modaclouds.monitoring.kb.api.FusekiKBAPI;
 import it.polimi.modaclouds.qos_models.monitoring_ontology.Resource;
-import it.polimi.modaclouds.qos_models.monitoring_ontology.Vocabulary;
+import it.polimi.modaclouds.qos_models.monitoring_ontology.MOVocabulary;
 
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -30,8 +30,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class FusekiConnector implements KBConnector {
-	
-	public static final String DATA_COLLECTORS_GRAPH_NAME = "data-collectors";
 
 	private Logger logger = LoggerFactory.getLogger(FusekiConnector.class);
 	private FusekiKBAPI fusekiKBAPI;
@@ -45,7 +43,8 @@ public class FusekiConnector implements KBConnector {
 		// TODO should it retrieve only the required ones?
 		Set<DCMetaData> dataCollectorsMetaData = new HashSet<DCMetaData>();
 		try {
-			dataCollectorsMetaData = fusekiKBAPI.getAll(DCMetaData.class,DATA_COLLECTORS_GRAPH_NAME);
+			dataCollectorsMetaData = fusekiKBAPI.getAll(DCMetaData.class,
+					DCVocabulary.DATA_COLLECTORS_GRAPH_NAME);
 		} catch (DeserializationException e) {
 			logger.error(
 					"Error while retriving data collectors meta data from KB",
@@ -58,10 +57,11 @@ public class FusekiConnector implements KBConnector {
 	public Resource getResourceById(String resourceId) {
 		try {
 			return (Resource) fusekiKBAPI.getEntityById(resourceId,
-					Vocabulary.resourceIdParameterName,DATA_COLLECTORS_GRAPH_NAME);
+					MOVocabulary.resourceIdParameterName,
+					MOVocabulary.MODEL_GRAPH_NAME);
 		} catch (Exception e) {
 			logger.error("Could not retrieve resource with {} {}",
-					Vocabulary.resourceIdParameterName, resourceId, e);
+					MOVocabulary.resourceIdParameterName, resourceId, e);
 			return null;
 		}
 	}
