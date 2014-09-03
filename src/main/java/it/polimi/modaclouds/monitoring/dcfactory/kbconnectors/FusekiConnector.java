@@ -30,6 +30,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class FusekiConnector implements KBConnector {
+	
+	public static final String DATA_COLLECTORS_GRAPH_NAME = "data-collectors";
 
 	private Logger logger = LoggerFactory.getLogger(FusekiConnector.class);
 	private FusekiKBAPI fusekiKBAPI;
@@ -43,7 +45,7 @@ public class FusekiConnector implements KBConnector {
 		// TODO should it retrieve only the required ones?
 		Set<DCMetaData> dataCollectorsMetaData = new HashSet<DCMetaData>();
 		try {
-			dataCollectorsMetaData = fusekiKBAPI.getAll(DCMetaData.class);
+			dataCollectorsMetaData = fusekiKBAPI.getAll(DCMetaData.class,DATA_COLLECTORS_GRAPH_NAME);
 		} catch (DeserializationException e) {
 			logger.error(
 					"Error while retriving data collectors meta data from KB",
@@ -56,7 +58,7 @@ public class FusekiConnector implements KBConnector {
 	public Resource getResourceById(String resourceId) {
 		try {
 			return (Resource) fusekiKBAPI.getEntityById(resourceId,
-					Vocabulary.resourceIdParameterName);
+					Vocabulary.resourceIdParameterName,DATA_COLLECTORS_GRAPH_NAME);
 		} catch (Exception e) {
 			logger.error("Could not retrieve resource with {} {}",
 					Vocabulary.resourceIdParameterName, resourceId, e);
