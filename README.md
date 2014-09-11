@@ -9,6 +9,8 @@ The data collector factory is a java library for building new data collector.
 Please refer to deliverable [D6.3.2](http://www.modaclouds.eu/publications/public-deliverables/) 
 to better understand the role of data collectors.
 
+Refer to the [Monitoring Platform Wiki](https://github.com/deib-polimi/modaclouds-monitoring-manager/wiki) for installation and usage of the whole platform.
+
 ## Usage
 
 An example of data collector built using this library is available
