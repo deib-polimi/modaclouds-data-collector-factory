@@ -18,7 +18,6 @@ package it.polimi.modaclouds.monitoring.dcfactory;
 
 public class DCFields {
 	
-	public static final String id = "id";
-	public static final String monitoringRuleId = "monitoringRuleId";
+	public static final String monitoredMetric = "monitoredMetric";
 
 }

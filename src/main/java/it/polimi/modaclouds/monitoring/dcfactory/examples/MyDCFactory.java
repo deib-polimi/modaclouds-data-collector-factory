@@ -17,19 +17,15 @@
 package it.polimi.modaclouds.monitoring.dcfactory.examples;
 
 import it.polimi.modaclouds.monitoring.dcfactory.DataCollectorFactory;
-import it.polimi.modaclouds.monitoring.dcfactory.ddaconnectors.DDAConnector;
-import it.polimi.modaclouds.monitoring.dcfactory.ddaconnectors.RCSConnector;
-import it.polimi.modaclouds.monitoring.dcfactory.kbconnectors.FusekiConnector;
-import it.polimi.modaclouds.monitoring.dcfactory.kbconnectors.KBConnector;
+import it.polimi.modaclouds.monitoring.dcfactory.wrappers.DDAConnector;
+import it.polimi.modaclouds.monitoring.dcfactory.wrappers.KBConnector;
 
 public class MyDCFactory extends DataCollectorFactory {
 
 	public static void main(String[] args) {
-		MyDCFactory dcfactory = new MyDCFactory(new RCSConnector(
-				"http://54.76.205.254:8175"), new FusekiConnector(
-				"http://54.76.205.254:3030/modaclouds/kb"));
-		dcfactory.addMonitoredResourceId("frontend1");
-		dcfactory.addMonitoredResourceId("mic1");
+		MyDCFactory dcfactory = new MyDCFactory(new DDAConnector(
+				"http://localhost:8175"), new KBConnector(
+				"http://localhost:3030/modaclouds/kb"));
 		dcfactory.startSyncingWithKB(10);
 	}
 
@@ -40,7 +36,7 @@ public class MyDCFactory extends DataCollectorFactory {
 
 	@Override
 	protected void syncedWithKB() {
-		System.out.println(getDataCollector("frontend1","cpuutilization"));
+		System.out.println(getConfiguration("cpuutilization"));
 	}
 
 }

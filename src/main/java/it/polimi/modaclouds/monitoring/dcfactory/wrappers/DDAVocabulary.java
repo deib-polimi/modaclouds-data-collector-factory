@@ -14,9 +14,9 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package it.polimi.modaclouds.monitoring.dcfactory.ddaconnectors;
+package it.polimi.modaclouds.monitoring.dcfactory.wrappers;
 
-class RCSVocabulary {
+class DDAVocabulary {
 
 	public static final String MonitoringDatum = "MonitoringDatum";
 

@@ -14,7 +14,7 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package it.polimi.modaclouds.monitoring.dcfactory.ddaconnectors;
+package it.polimi.modaclouds.monitoring.dcfactory.wrappers;
 
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
@@ -32,29 +32,29 @@ import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.vocabulary.RDF;
 
-public class RCSConnector implements DDAConnector {
+public class DDAConnector {
 
 	private final Logger logger = LoggerFactory
-			.getLogger(RCSConnector.class);
+			.getLogger(DDAConnector.class);
 
 	private RSP_services_csparql_API csparql_api;
 	private ExecutorService execService = Executors.newSingleThreadExecutor();
 	private String ddaURL;
 
-	public RCSConnector(String ddaURL) {
+	public DDAConnector(String ddaURL) {
 		this.ddaURL = ddaURL;
 		if (!ddaURL.endsWith("/"))
 			ddaURL += "/";
 		csparql_api = new RSP_services_csparql_API(ddaURL);
 	}
 
-	@Override
+
 	public void sendSyncMonitoringDatum(String value, String metric,
 			String monitoredResourceId) {
 		send(value, metric.toLowerCase(), monitoredResourceId);
 	}
 
-	@Override
+
 	public void sendAsyncMonitoringDatum(final String value,
 			final String metric, final String monitoredResourceId) {
 		execService.execute(new Runnable() {
@@ -70,7 +70,7 @@ public class RCSConnector implements DDAConnector {
 		String streamURI = getStreamURI(metric);
 		try {
 			csparql_api.feedStream(streamURI, m);
-			logger.debug("Monitoring datum sent synchronously to {}", ddaURL);
+			logger.info("Monitoring datum sent to {}: {} {} {}", ddaURL, monitoredResourceId, metric, value);
 		} catch (ServerErrorException | StreamErrorException e) {
 			logger.error("Error while sending monitoring datum to {}", ddaURL,e);
 		}
@@ -83,15 +83,15 @@ public class RCSConnector implements DDAConnector {
 
 	private Model createModel(String value, String metric,
 			String monitoredResourceId) {
-		String monDatumInstanceURI = RCSOntology.MonitoringDatum + "#"
+		String monDatumInstanceURI = DDAOntology.MonitoringDatum + "#"
 				+ UUID.randomUUID().toString();
 		Model m = ModelFactory.createDefaultModel();
 		m.createResource(monDatumInstanceURI)
-				.addProperty(RDF.type, RCSOntology.MonitoringDatum)
-				.addProperty(RCSOntology.metric, m.createTypedLiteral(metric, XSDDatatype.XSDstring))
-				.addProperty(RCSOntology.value,
+				.addProperty(RDF.type, DDAOntology.MonitoringDatum)
+				.addProperty(DDAOntology.metric, m.createTypedLiteral(metric, XSDDatatype.XSDstring))
+				.addProperty(DDAOntology.value,
 						m.createTypedLiteral(value, XSDDatatype.XSDdouble))
-				.addProperty(RCSOntology.resourceId,
+				.addProperty(DDAOntology.resourceId,
 						m.createTypedLiteral(monitoredResourceId, XSDDatatype.XSDstring));
 		return m;
 	}

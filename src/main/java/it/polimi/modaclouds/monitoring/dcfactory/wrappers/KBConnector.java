@@ -14,46 +14,50 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package it.polimi.modaclouds.monitoring.dcfactory.kbconnectors;
+package it.polimi.modaclouds.monitoring.dcfactory.wrappers;
 
-import it.polimi.modaclouds.monitoring.dcfactory.DCMetaData;
+import it.polimi.modaclouds.monitoring.dcfactory.DCConfig;
 import it.polimi.modaclouds.monitoring.dcfactory.DCVocabulary;
 import it.polimi.modaclouds.monitoring.kb.api.DeserializationException;
 import it.polimi.modaclouds.monitoring.kb.api.FusekiKBAPI;
 import it.polimi.modaclouds.qos_models.monitoring_ontology.Resource;
 import it.polimi.modaclouds.qos_models.monitoring_ontology.MOVocabulary;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class FusekiConnector implements KBConnector {
+public class KBConnector {
 
-	private Logger logger = LoggerFactory.getLogger(FusekiConnector.class);
+	private Logger logger = LoggerFactory.getLogger(KBConnector.class);
 	private FusekiKBAPI fusekiKBAPI;
 
-	public FusekiConnector(String knowledgeBaseURL) {
+	public KBConnector(String knowledgeBaseURL) {
 		fusekiKBAPI = new FusekiKBAPI(knowledgeBaseURL);
 	}
 
-	@Override
-	public Set<DCMetaData> getDataCollectorsMetaData() {
-		// TODO should it retrieve only the required ones?
-		Set<DCMetaData> dataCollectorsMetaData = new HashSet<DCMetaData>();
+	
+	public Map<String,DCConfig> getDCsConfigByMetric() {
+		Set<DCConfig> dCsConfig = new HashSet<DCConfig>();
+		Map<String,DCConfig> dcConfigByMetric = new HashMap<String, DCConfig>();
 		try {
-			dataCollectorsMetaData = fusekiKBAPI.getAll(DCMetaData.class,
+			dCsConfig = fusekiKBAPI.getAll(DCConfig.class,
 					DCVocabulary.DATA_COLLECTORS_GRAPH_NAME);
+			for (DCConfig dcConfig : dCsConfig) {
+				dcConfigByMetric.put(dcConfig.getMonitoredMetric(), dcConfig);
+			}
 		} catch (DeserializationException e) {
 			logger.error(
 					"Error while retriving data collectors meta data from KB",
 					e);
 		}
-		return dataCollectorsMetaData;
+		return dcConfigByMetric;
 	}
 
-	@Override
 	public Resource getResourceById(String resourceId) {
 		try {
 			return (Resource) fusekiKBAPI.getEntityById(resourceId,

@@ -33,12 +33,12 @@ public class FieldsAlignmentTest {
 	public void test() {
 		try {
 			for (Field field : DCFields.class.getFields()) {
-				BeanUtils.getProperty(new DCMetaData(), (String) field.get(null));
+				BeanUtils.getProperty(new DCConfig(), (String) field.get(null));
 			}
 		} catch (Exception e) {
 			logger.error("{} not aligned with {}",
 					DCFields.class.getSimpleName(),
-					DCMetaData.class.getSimpleName(),e);
+					DCConfig.class.getSimpleName(),e);
 			fail();
 		}
 	}

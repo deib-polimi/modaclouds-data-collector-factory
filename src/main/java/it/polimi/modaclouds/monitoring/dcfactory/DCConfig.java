@@ -20,28 +20,27 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 
-public class DCMetaData{
+public class DCConfig{
 
-	private String id;
+//	private String id;
 	private String monitoredMetric;
 	private Map<String, String> parameters = new HashMap<String, String>();
 	private Set<String> monitoredResourcesClasses = new HashSet<String>();
 	private Set<String> monitoredResourcesTypes = new HashSet<String>();
 	private Set<String> monitoredResourcesIds = new HashSet<String>();
-	private String monitoringRuleId;
+//	private String monitoringRuleId;
 	
-	public String getMonitoringRuleId() {
-		return monitoringRuleId;
-	}
+//	public String getMonitoringRuleId() {
+//		return monitoringRuleId;
+//	}
+//
+//	public void setMonitoringRuleId(String monitoringRuleId) {
+//		this.monitoringRuleId = monitoringRuleId;
+//	}
 
-	public void setMonitoringRuleId(String monitoringRuleId) {
-		this.monitoringRuleId = monitoringRuleId;
-	}
-
-	public DCMetaData() {
-		id = UUID.randomUUID().toString();
+	public DCConfig() {
+//		id = UUID.randomUUID().toString();
 	}
 	
 	public Map<String, String> getParameters() {
@@ -103,9 +102,6 @@ public class DCMetaData{
 				* result
 				+ ((monitoredResourcesTypes == null) ? 0
 						: monitoredResourcesTypes.hashCode());
-		result = prime
-				* result
-				+ ((monitoringRuleId == null) ? 0 : monitoringRuleId.hashCode());
 		result = prime * result
 				+ ((parameters == null) ? 0 : parameters.hashCode());
 		return result;
@@ -119,7 +115,7 @@ public class DCMetaData{
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		DCMetaData other = (DCMetaData) obj;
+		DCConfig other = (DCConfig) obj;
 		if (monitoredMetric == null) {
 			if (other.monitoredMetric != null)
 				return false;
@@ -142,11 +138,6 @@ public class DCMetaData{
 		} else if (!monitoredResourcesTypes
 				.equals(other.monitoredResourcesTypes))
 			return false;
-		if (monitoringRuleId == null) {
-			if (other.monitoringRuleId != null)
-				return false;
-		} else if (!monitoringRuleId.equals(other.monitoringRuleId))
-			return false;
 		if (parameters == null) {
 			if (other.parameters != null)
 				return false;
@@ -157,21 +148,20 @@ public class DCMetaData{
 
 	@Override
 	public String toString() {
-		return "DCMetaData [id=" + id + ", monitoredMetric=" + monitoredMetric
+		return "DCMetaData [monitoredMetric=" + monitoredMetric
 				+ ", parameters=" + parameters + ", monitoredResourcesClasses="
 				+ monitoredResourcesClasses + ", monitoredResourcesTypes="
 				+ monitoredResourcesTypes + ", monitoredResourcesIds="
-				+ monitoredResourcesIds + ", monitoringRuleId="
-				+ monitoringRuleId + "]";
+				+ monitoredResourcesIds + "]";
 	}
 
-	public String getId() {
-		return id;
-	}
-
-	public void setId(String id) {
-		this.id = id;
-	}
+//	public String getId() {
+//		return id;
+//	}
+//
+//	public void setId(String id) {
+//		this.id = id;
+//	}
 
 	public Set<String> getMonitoredResourcesClasses() {
 		return monitoredResourcesClasses;

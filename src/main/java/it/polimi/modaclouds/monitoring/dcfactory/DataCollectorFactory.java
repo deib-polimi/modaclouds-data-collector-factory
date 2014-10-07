@@ -16,16 +16,13 @@
  */
 package it.polimi.modaclouds.monitoring.dcfactory;
 
-import it.polimi.modaclouds.monitoring.dcfactory.ddaconnectors.DDAConnector;
-import it.polimi.modaclouds.monitoring.dcfactory.kbconnectors.KBConnector;
-import it.polimi.modaclouds.qos_models.monitoring_ontology.Resource;
+import it.polimi.modaclouds.monitoring.dcfactory.wrappers.DDAConnector;
+import it.polimi.modaclouds.monitoring.dcfactory.wrappers.KBConnector;
 import it.polimi.modaclouds.qos_models.monitoring_ontology.MOVocabulary;
+import it.polimi.modaclouds.qos_models.monitoring_ontology.Resource;
 
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -44,11 +41,12 @@ public abstract class DataCollectorFactory {
 	private ScheduledExecutorService executorService = Executors
 			.newSingleThreadScheduledExecutor();
 	private ScheduledFuture<?> kbSyncExecutorHandler;
-	private Map<String, Map<String, DCMetaData>> dcByMetricByResourceId;
+	private Map<String, DCConfig> dcConfigByMetric;
 	private KBConnector kb;
-	private int kbSyncPeriod;
+//	private int kbSyncPeriod;
 	private boolean isSyncingWithKB = false;
-	private Set<String> monitoredResourcesIds;
+	// private Set<String> monitoredResourcesIds;
+//	private Set<String> monitoredMetrics;
 
 	// private Set<DataCollector> installedDataCollectors;
 
@@ -63,31 +61,30 @@ public abstract class DataCollectorFactory {
 	 * 
 	 * @param dda
 	 *            Any implementation of the DDAHandler.
-	 *            {@link it.polimi.modaclouds.monitoring.dcfactory.ddaconnectors.RCSConnector}
+	 *            {@link it.polimi.modaclouds.monitoring.dcfactory.wrappers.DDAConnector}
 	 *            provided in this version.
 	 * @param kb
 	 *            Any implementation of the KBHandler.
-	 *            {@link it.polimi.modaclouds.monitoring.dcfactory.kbconnectors.FusekiConnector}
+	 *            {@link it.polimi.modaclouds.monitoring.dcfactory.wrappers.KBConnector}
 	 *            provided in this version.
 	 */
 	public DataCollectorFactory(DDAConnector dda, KBConnector kb) {
 		this.dda = dda;
 		this.kb = kb;
-		dcByMetricByResourceId = new HashMap<String, Map<String, DCMetaData>>();
-		monitoredResourcesIds = new HashSet<String>();
+		dcConfigByMetric = new HashMap<String, DCConfig>();
+//		monitoredMetrics = new HashSet<String>();
 	}
 
-	/**
-	 * Adds the id of a monitored resource, required to have the Data Collector
-	 * Factory retrieve the necessary Data Collectors from the KB.
-	 * 
-	 * @param monitoredResourceId
-	 */
-	public void addMonitoredResourceId(String monitoredResourceId) {
-		monitoredResourcesIds.add(monitoredResourceId);
-		logger.info("Resource with id {} was added to the monitored resources",
-				monitoredResourceId);
-	}
+//	/**
+//	 * Add metrics monitored by the DC, required to have the Data Collector
+//	 * Factory retrieve the necessary DC Config from the KB.
+//	 * 
+//	 * @param monitoredResourceId
+//	 */
+//	public void addMonitoredMetric(String metric) {
+//		monitoredMetrics.add(metric.toLowerCase());
+//		logger.info("Metric \"{}\" added to the list of monitored metrics", metric);
+//	}
 
 	/**
 	 * Starts periodical synchronization with KB to retrieve data collectors
@@ -102,7 +99,7 @@ public abstract class DataCollectorFactory {
 			logger.error("The Data Collector Factory is already syncing with KB");
 			return;
 		}
-		this.kbSyncPeriod = kbSyncPeriod;
+//		this.kbSyncPeriod = kbSyncPeriod;
 		kbSyncExecutorHandler = executorService.scheduleWithFixedDelay(
 				new Runnable() {
 					@Override
@@ -143,33 +140,25 @@ public abstract class DataCollectorFactory {
 	}
 
 	private void syncWithKB() {
-		Map<String, Map<String, DCMetaData>> newDCByMetricByResourceId = new HashMap<String, Map<String, DCMetaData>>();
 		logger.info("Syncing with KB...");
-		Set<DCMetaData> newDataCollectors = kb.getDataCollectorsMetaData();
-		if (newDataCollectors == null)
-			newDataCollectors = new HashSet<DCMetaData>();
-		logger.info("{} data collectors were downloaded from KB",
-				newDataCollectors.size());
-		for (String resourceId : monitoredResourcesIds) {
-			for (DCMetaData dc : newDataCollectors) {
-				if (isMonitoredBy(resourceId, dc)) {
-					logger.info("Resource {} required to be monitored according to {}", resourceId, dc.toString());
-					Map<String, DCMetaData> dcByMetric = newDCByMetricByResourceId
-							.get(resourceId);
-					if (dcByMetric == null) {
-						dcByMetric = new HashMap<String, DCMetaData>();
-						newDCByMetricByResourceId.put(resourceId, dcByMetric);
-					}
-					dcByMetric.put(dc.getMonitoredMetric().toLowerCase(), dc);
-				}
-			}
-		}
-		dcByMetricByResourceId = newDCByMetricByResourceId;
+		Map<String,DCConfig> newDCsConfigByMetric = kb.getDCsConfigByMetric();
+		logger.info("{} data collectors configurations were downloaded from KB",
+				newDCsConfigByMetric.size());
+		dcConfigByMetric = newDCsConfigByMetric;
 		logger.info("Data collectors synced with KB.");
 		syncedWithKB();
 	}
 
-	private boolean isMonitoredBy(String resourceId, DCMetaData dc) {
+	/**
+	 * Checks if metric {@code metric} should be collected for the resource 
+	 * identified by {@code resourceId} according to the current configuration.
+	 * 
+	 * @param resourceId
+	 * @param metric
+	 * @return
+	 */
+	public boolean monitoringRequired(String resourceId, String metric) {
+		DCConfig dc = dcConfigByMetric.get(metric);
 		if (dc.getMonitoredResourcesIds().contains(resourceId))
 			return true;
 		if (!dc.getMonitoredResourcesIds().isEmpty())
@@ -194,45 +183,19 @@ public abstract class DataCollectorFactory {
 	}
 
 	/**
-	 * Getter for the local representation of data collectors, kept in sync with
-	 * the KB automatically. The requested data collector will be available only
-	 * if monitoring data for the metric and resource specified are required by
-	 * the monitoring platform. If {@code null} is returned, the dedicated data
+	 * Getter for data collectors configuration, kept in sync with
+	 * the KB automatically. If {@code null} is returned, the dedicated data
 	 * collector should not send data.
 	 * 
-	 * @param monitoredResourceId
-	 *            The id of the resource monitored by the data collector
 	 * @param monitoredMetric
 	 *            The metric monitored by the data collector
-	 * @return the data collector monitoring metric {@code monitoredMetric} on
-	 *         resource with id {@code monitoredResourceId} if the data
-	 *         collector exists on the KB, {@code null} otherwise
+	 * @return the data collector configuration for the monitoring metric {@code monitoredMetric} 
+	 * if it exists, {@code null} otherwise
 	 */
-	public DCMetaData getDataCollector(String monitoredResourceId,
-			String monitoredMetric) {
-		if (dcByMetricByResourceId.get(monitoredResourceId) == null)
-			return null;
-		return dcByMetricByResourceId.get(monitoredResourceId).get(
-				monitoredMetric.toLowerCase());
+	public DCConfig getConfiguration(String monitoredMetric) {
+		return dcConfigByMetric.get(monitoredMetric);
 	}
 
-	/**
-	 * Getter for the local representation of data collectors, kept in sync with
-	 * the KB automatically. Only data collectors for the resource specified
-	 * that are requested by the mnitoring platform are returned if any. Only
-	 * returned data collectors should send data for the resource specified.
-	 * 
-	 * @param monitoredResourceId
-	 *            The id of the resource monitored by the data collector
-	 * @return data collectors monitoring resource with id
-	 *         {@code monitoredResourceId}
-	 */
-	public Collection<DCMetaData> getDataCollectors(String monitoredResourceId) {
-		Set<DCMetaData> dcs = new HashSet<DCMetaData>();
-		if (dcByMetricByResourceId.get(monitoredResourceId) == null)
-			return dcs;
-		return dcByMetricByResourceId.get(monitoredResourceId).values();
-	}
 
 	/**
 	 * The monitoring datum is sent to the DDA synchronously.

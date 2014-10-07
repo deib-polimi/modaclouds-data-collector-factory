@@ -24,25 +24,23 @@ public class DCHashCodeTest {
 
 	@Test
 	public void emptyDC() {
-		DCMetaData dc1 = new DCMetaData();
-		DCMetaData dc2 = new DCMetaData();
+		DCConfig dc1 = new DCConfig();
+		DCConfig dc2 = new DCConfig();
 		assertTrue(dc1.hashCode()==dc2.hashCode());
 	}
 	
 	@Test
 	public void dcWithDifferentID() {
-		DCMetaData dc1 = new DCMetaData();
-		DCMetaData dc2 = new DCMetaData();
-		dc1.setId("id1");
-		dc1.setId("id2");
+		DCConfig dc1 = new DCConfig();
+		DCConfig dc2 = new DCConfig();
+		dc1.setMonitoredMetric("ReponseTime");
+		dc1.setMonitoredMetric("CPUUtilization");
 		dc1.addMonitoredResourceClass("myresource1");
 		dc1.addMonitoredResourceClass("myresource2");
 		dc1.addParameter("key", "value");
-		dc1.setMonitoringRuleId("ruleid");
 		dc2.addMonitoredResourceClass("myresource1");
 		dc2.addMonitoredResourceClass("myresource2");
 		dc2.addParameter("key", "value");
-		dc2.setMonitoringRuleId("ruleid");
 		assertTrue(dc1.hashCode()==dc2.hashCode());
 	}
 

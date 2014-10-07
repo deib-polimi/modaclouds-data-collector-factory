@@ -14,7 +14,7 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-package it.polimi.modaclouds.monitoring.dcfactory.ddaconnectors;
+package it.polimi.modaclouds.monitoring.dcfactory.wrappers;
 
 import com.hp.hpl.jena.ontology.OntClass;
 import com.hp.hpl.jena.ontology.OntModel;
@@ -22,7 +22,7 @@ import com.hp.hpl.jena.ontology.OntModelSpec;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Property;
 
-public class RCSOntology {
+public class DDAOntology {
 
 	public static final String URI = "http://www.modaclouds.eu/rdfs/1.0/monitoringdata#";
 	public static String prefix = "modamd";
@@ -30,12 +30,12 @@ public class RCSOntology {
 	public static OntModel model = ModelFactory
 			.createOntologyModel(OntModelSpec.RDFS_MEM);
 	
-	public static Property metric = makeProperty(RCSVocabulary.metric);
-	public static final Property value = makeProperty(RCSVocabulary.value);
-	public static final Property resourceId = makeProperty(RCSVocabulary.resourceId);
-	public static final Property timestamp = makeProperty(RCSVocabulary.timestamp);
+	public static Property metric = makeProperty(DDAVocabulary.metric);
+	public static final Property value = makeProperty(DDAVocabulary.value);
+	public static final Property resourceId = makeProperty(DDAVocabulary.resourceId);
+	public static final Property timestamp = makeProperty(DDAVocabulary.timestamp);
 
-	public static OntClass MonitoringDatum = makeClass(RCSVocabulary.MonitoringDatum);
+	public static OntClass MonitoringDatum = makeClass(DDAVocabulary.MonitoringDatum);
 
 	static {
 		model.setNsPrefix(prefix, URI);
