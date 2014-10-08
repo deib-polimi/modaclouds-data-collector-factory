@@ -36,7 +36,7 @@ public class MyDCFactory extends DataCollectorFactory {
 
 	@Override
 	protected void syncedWithKB() {
-		System.out.println(getConfiguration("cpuutilization"));
+		System.out.println(getConfiguration("frontend1","cpuutilization"));
 	}
 
 }

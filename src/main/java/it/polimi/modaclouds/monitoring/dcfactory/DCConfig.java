@@ -20,27 +20,19 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 public class DCConfig{
 
-//	private String id;
+	private String id;
 	private String monitoredMetric;
 	private Map<String, String> parameters = new HashMap<String, String>();
 	private Set<String> monitoredResourcesClasses = new HashSet<String>();
 	private Set<String> monitoredResourcesTypes = new HashSet<String>();
 	private Set<String> monitoredResourcesIds = new HashSet<String>();
-//	private String monitoringRuleId;
-	
-//	public String getMonitoringRuleId() {
-//		return monitoringRuleId;
-//	}
-//
-//	public void setMonitoringRuleId(String monitoringRuleId) {
-//		this.monitoringRuleId = monitoringRuleId;
-//	}
 
 	public DCConfig() {
-//		id = UUID.randomUUID().toString();
+		id = UUID.randomUUID().toString();
 	}
 	
 	public Map<String, String> getParameters() {
@@ -83,85 +75,22 @@ public class DCConfig{
 		monitoredResourcesClasses.add(monitoredResourceClass);
 	}
 
-
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result
-				+ ((monitoredMetric == null) ? 0 : monitoredMetric.hashCode());
-		result = prime
-				* result
-				+ ((monitoredResourcesClasses == null) ? 0
-						: monitoredResourcesClasses.hashCode());
-		result = prime
-				* result
-				+ ((monitoredResourcesIds == null) ? 0 : monitoredResourcesIds
-						.hashCode());
-		result = prime
-				* result
-				+ ((monitoredResourcesTypes == null) ? 0
-						: monitoredResourcesTypes.hashCode());
-		result = prime * result
-				+ ((parameters == null) ? 0 : parameters.hashCode());
-		return result;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		DCConfig other = (DCConfig) obj;
-		if (monitoredMetric == null) {
-			if (other.monitoredMetric != null)
-				return false;
-		} else if (!monitoredMetric.equals(other.monitoredMetric))
-			return false;
-		if (monitoredResourcesClasses == null) {
-			if (other.monitoredResourcesClasses != null)
-				return false;
-		} else if (!monitoredResourcesClasses
-				.equals(other.monitoredResourcesClasses))
-			return false;
-		if (monitoredResourcesIds == null) {
-			if (other.monitoredResourcesIds != null)
-				return false;
-		} else if (!monitoredResourcesIds.equals(other.monitoredResourcesIds))
-			return false;
-		if (monitoredResourcesTypes == null) {
-			if (other.monitoredResourcesTypes != null)
-				return false;
-		} else if (!monitoredResourcesTypes
-				.equals(other.monitoredResourcesTypes))
-			return false;
-		if (parameters == null) {
-			if (other.parameters != null)
-				return false;
-		} else if (!parameters.equals(other.parameters))
-			return false;
-		return true;
-	}
-
 	@Override
 	public String toString() {
-		return "DCMetaData [monitoredMetric=" + monitoredMetric
+		return "DCConfig [id=" + id + ", monitoredMetric=" + monitoredMetric
 				+ ", parameters=" + parameters + ", monitoredResourcesClasses="
 				+ monitoredResourcesClasses + ", monitoredResourcesTypes="
 				+ monitoredResourcesTypes + ", monitoredResourcesIds="
 				+ monitoredResourcesIds + "]";
 	}
 
-//	public String getId() {
-//		return id;
-//	}
-//
-//	public void setId(String id) {
-//		this.id = id;
-//	}
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
+	}
 
 	public Set<String> getMonitoredResourcesClasses() {
 		return monitoredResourcesClasses;

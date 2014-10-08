@@ -20,12 +20,9 @@ import it.polimi.modaclouds.monitoring.dcfactory.DCConfig;
 import it.polimi.modaclouds.monitoring.dcfactory.DCVocabulary;
 import it.polimi.modaclouds.monitoring.kb.api.DeserializationException;
 import it.polimi.modaclouds.monitoring.kb.api.FusekiKBAPI;
-import it.polimi.modaclouds.qos_models.monitoring_ontology.Resource;
 import it.polimi.modaclouds.qos_models.monitoring_ontology.MOVocabulary;
+import it.polimi.modaclouds.qos_models.monitoring_ontology.Resource;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -41,21 +38,17 @@ public class KBConnector {
 	}
 
 	
-	public Map<String,DCConfig> getDCsConfigByMetric() {
-		Set<DCConfig> dCsConfig = new HashSet<DCConfig>();
-		Map<String,DCConfig> dcConfigByMetric = new HashMap<String, DCConfig>();
+	public Set<DCConfig> getAllDCsConfig() {
+		Set<DCConfig> allConfigs = null;
 		try {
-			dCsConfig = fusekiKBAPI.getAll(DCConfig.class,
+			allConfigs = fusekiKBAPI.getAll(DCConfig.class,
 					DCVocabulary.DATA_COLLECTORS_GRAPH_NAME);
-			for (DCConfig dcConfig : dCsConfig) {
-				dcConfigByMetric.put(dcConfig.getMonitoredMetric(), dcConfig);
-			}
 		} catch (DeserializationException e) {
 			logger.error(
-					"Error while retriving data collectors meta data from KB",
+					"Error while retriving data collectors configuration from KB",
 					e);
 		}
-		return dcConfigByMetric;
+		return allConfigs;
 	}
 
 	public Resource getResourceById(String resourceId) {
