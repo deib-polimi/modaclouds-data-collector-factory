@@ -23,6 +23,7 @@ import it.polimi.modaclouds.qos_models.monitoring_ontology.Resource;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Executors;
@@ -44,7 +45,7 @@ public abstract class DataCollectorFactory {
 			.newSingleThreadScheduledExecutor();
 	private ScheduledFuture<?> kbSyncExecutorHandler;
 	private Map<String, Set<DCConfig>> dCsConfigByMetric;
-	private Set<DCConfig> allDCsConfig;
+	private Set<DCConfig> allDCsConfigs;
 	private KBConnector kb;
 	// private int kbSyncPeriod;
 	private boolean isSyncingWithKB = false;
@@ -65,7 +66,7 @@ public abstract class DataCollectorFactory {
 		this.dda = dda;
 		this.kb = kb;
 		dCsConfigByMetric = new HashMap<String, Set<DCConfig>>();
-		allDCsConfig = new HashSet<DCConfig>();
+		allDCsConfigs = new HashSet<DCConfig>();
 	}
 
 	/**
@@ -122,17 +123,19 @@ public abstract class DataCollectorFactory {
 
 	private void syncWithKB() {
 		logger.info("Syncing with KB...");
-		allDCsConfig = kb.getAllDCsConfig();
+		allDCsConfigs = kb.getAllDCsConfig();
 		Map<String, Set<DCConfig>> newDCsConfigByMetric = new HashMap<String, Set<DCConfig>>();
-		for (DCConfig dcConfig : allDCsConfig) {
-			Set<DCConfig> configsPerMetric = newDCsConfigByMetric.get(dcConfig
-					.getMonitoredMetric());
-			if (configsPerMetric == null) {
-				configsPerMetric = new HashSet<DCConfig>();
-				newDCsConfigByMetric.put(dcConfig.getMonitoredMetric(),
-						configsPerMetric);
+		if (allDCsConfigs != null) {
+			for (DCConfig dcConfig : allDCsConfigs) {
+				Set<DCConfig> configsPerMetric = newDCsConfigByMetric
+						.get(dcConfig.getMonitoredMetric());
+				if (configsPerMetric == null) {
+					configsPerMetric = new HashSet<DCConfig>();
+					newDCsConfigByMetric.put(dcConfig.getMonitoredMetric(),
+							configsPerMetric);
+				}
+				configsPerMetric.add(dcConfig);
 			}
-			configsPerMetric.add(dcConfig);
 		}
 		dCsConfigByMetric = newDCsConfigByMetric;
 		logger.info("Data collectors configuration synced with KB.");
@@ -170,10 +173,13 @@ public abstract class DataCollectorFactory {
 		if (monitoredMetric != null)
 			allDCsConfigs = dCsConfigByMetric.get(monitoredMetric);
 		else
-			allDCsConfigs = this.allDCsConfig;
-		for (DCConfig dcConfig : allDCsConfigs) {
-			if (resourceId == null || monitoringRequired(resourceId, dcConfig)) {
-				selectedConfig.add(dcConfig);
+			allDCsConfigs = this.allDCsConfigs;
+		if (allDCsConfigs != null) {
+			for (DCConfig dcConfig : allDCsConfigs) {
+				if (resourceId == null
+						|| monitoringRequired(resourceId, dcConfig)) {
+					selectedConfig.add(dcConfig);
+				}
 			}
 		}
 		return selectedConfig;
@@ -189,6 +195,19 @@ public abstract class DataCollectorFactory {
 	public void sendSyncMonitoringDatum(String value, String metric,
 			String monitoredResourceId) {
 		dda.sendSyncMonitoringDatum(value, metric.toLowerCase(),
+				monitoredResourceId);
+	}
+	
+	/**
+	 * The monitoring data is sent to the DDA synchronously.
+	 * 
+	 * @param values
+	 * @param metric
+	 * @param monitoredResourceId
+	 */
+	public void sendSyncMonitoringData(List<String> values, String metric,
+			String monitoredResourceId) {
+		dda.sendSyncMonitoringData(values, metric.toLowerCase(),
 				monitoredResourceId);
 	}
 

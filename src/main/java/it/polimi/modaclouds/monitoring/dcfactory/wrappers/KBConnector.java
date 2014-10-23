@@ -23,6 +23,7 @@ import it.polimi.modaclouds.monitoring.kb.api.FusekiKBAPI;
 import it.polimi.modaclouds.qos_models.monitoring_ontology.MOVocabulary;
 import it.polimi.modaclouds.qos_models.monitoring_ontology.Resource;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import org.slf4j.Logger;

@@ -16,6 +16,9 @@
  */
 package it.polimi.modaclouds.monitoring.dcfactory.wrappers;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -27,6 +30,7 @@ import polimi.deib.csparql_rest_api.RSP_services_csparql_API;
 import polimi.deib.csparql_rest_api.exception.ServerErrorException;
 import polimi.deib.csparql_rest_api.exception.StreamErrorException;
 
+import com.google.common.collect.Lists;
 import com.hp.hpl.jena.datatypes.xsd.XSDDatatype;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
@@ -34,8 +38,7 @@ import com.hp.hpl.jena.vocabulary.RDF;
 
 public class DDAConnector {
 
-	private final Logger logger = LoggerFactory
-			.getLogger(DDAConnector.class);
+	private final Logger logger = LoggerFactory.getLogger(DDAConnector.class);
 
 	private RSP_services_csparql_API csparql_api;
 	private ExecutorService execService = Executors.newSingleThreadExecutor();
@@ -48,31 +51,39 @@ public class DDAConnector {
 		csparql_api = new RSP_services_csparql_API(ddaURL);
 	}
 
+	public void sendSyncMonitoringData(List<String> values, String metric,
+			String monitoredResourceId) {
+		send(values, metric, monitoredResourceId);
+	}
 
 	public void sendSyncMonitoringDatum(String value, String metric,
 			String monitoredResourceId) {
-		send(value, metric.toLowerCase(), monitoredResourceId);
+		send(Arrays.asList(new String[] { value }), metric.toLowerCase(),
+				monitoredResourceId);
 	}
-
 
 	public void sendAsyncMonitoringDatum(final String value,
 			final String metric, final String monitoredResourceId) {
 		execService.execute(new Runnable() {
 			@Override
 			public void run() {
-				send(value, metric.toLowerCase(), monitoredResourceId);
+				send(Arrays.asList(new String[] { value }),
+						metric.toLowerCase(), monitoredResourceId);
 			}
 		});
 	}
 
-	private void send(String value, String metric, String monitoredResourceId) {
-		Model m = createModel(value, metric, monitoredResourceId);
+	private void send(List<String> values, String metric,
+			String monitoredResourceId) {
+		Model m = createModel(values, metric, monitoredResourceId);
 		String streamURI = getStreamURI(metric);
 		try {
 			csparql_api.feedStream(streamURI, m);
-			logger.info("Monitoring datum sent to {}: {} {} {}", ddaURL, monitoredResourceId, metric, value);
+			logger.info("Monitoring data sent to {}: {} {} {}", ddaURL,
+					monitoredResourceId, metric, values);
 		} catch (ServerErrorException | StreamErrorException e) {
-			logger.error("Error while sending monitoring datum to {}", ddaURL,e);
+			logger.error("Error while sending monitoring datum to {}", ddaURL,
+					e);
 		}
 	}
 
@@ -81,18 +92,23 @@ public class DDAConnector {
 		return streamURI;
 	}
 
-	private Model createModel(String value, String metric,
+	private Model createModel(List<String> values, String metric,
 			String monitoredResourceId) {
-		String monDatumInstanceURI = DDAOntology.MonitoringDatum + "#"
-				+ UUID.randomUUID().toString();
 		Model m = ModelFactory.createDefaultModel();
-		m.createResource(monDatumInstanceURI)
-				.addProperty(RDF.type, DDAOntology.MonitoringDatum)
-				.addProperty(DDAOntology.metric, m.createTypedLiteral(metric, XSDDatatype.XSDstring))
-				.addProperty(DDAOntology.value,
-						m.createTypedLiteral(value, XSDDatatype.XSDdouble))
-				.addProperty(DDAOntology.resourceId,
-						m.createTypedLiteral(monitoredResourceId, XSDDatatype.XSDstring));
+		for (String value : values) {
+			String monDatumInstanceURI = DDAOntology.MonitoringDatum + "#"
+					+ UUID.randomUUID().toString();
+			m.createResource(monDatumInstanceURI)
+					.addProperty(RDF.type, DDAOntology.MonitoringDatum)
+					.addProperty(DDAOntology.metric,
+							m.createTypedLiteral(metric, XSDDatatype.XSDstring))
+					.addProperty(DDAOntology.value,
+							m.createTypedLiteral(value, XSDDatatype.XSDstring))
+					.addProperty(
+							DDAOntology.resourceId,
+							m.createTypedLiteral(monitoredResourceId,
+									XSDDatatype.XSDstring));
+		}
 		return m;
 	}
 
