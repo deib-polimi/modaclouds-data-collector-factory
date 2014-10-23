@@ -37,7 +37,7 @@ and the following dependency:
 <dependency>
 	<groupId>it.polimi.modaclouds.monitoring</groupId>
 	<artifactId>data-collector-factory</artifactId>
-	<version>0.1</version>
+	<version>0.2.2</version>
 </dependency>
 ```
 
