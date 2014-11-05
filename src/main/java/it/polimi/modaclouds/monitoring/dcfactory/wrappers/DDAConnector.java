@@ -103,7 +103,7 @@ public class DDAConnector {
 					.addProperty(DDAOntology.metric,
 							m.createTypedLiteral(metric, XSDDatatype.XSDstring))
 					.addProperty(DDAOntology.value,
-							m.createTypedLiteral(value, XSDDatatype.XSDstring))
+							m.createTypedLiteral(value, XSDDatatype.XSDdouble))
 					.addProperty(
 							DDAOntology.resourceId,
 							m.createTypedLiteral(monitoredResourceId,
