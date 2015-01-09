@@ -16,7 +16,6 @@
  */
 package it.polimi.modaclouds.monitoring.dcfactory.wrappers;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
@@ -30,7 +29,6 @@ import polimi.deib.csparql_rest_api.RSP_services_csparql_API;
 import polimi.deib.csparql_rest_api.exception.ServerErrorException;
 import polimi.deib.csparql_rest_api.exception.StreamErrorException;
 
-import com.google.common.collect.Lists;
 import com.hp.hpl.jena.datatypes.xsd.XSDDatatype;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
@@ -41,7 +39,7 @@ public class DDAConnector {
 	private final Logger logger = LoggerFactory.getLogger(DDAConnector.class);
 
 	private RSP_services_csparql_API csparql_api;
-	private ExecutorService execService = Executors.newSingleThreadExecutor();
+	private ExecutorService execService = Executors.newCachedThreadPool();
 	private String ddaURL;
 
 	public DDAConnector(String ddaURL) {
