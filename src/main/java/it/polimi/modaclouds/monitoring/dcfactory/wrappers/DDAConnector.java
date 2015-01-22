@@ -16,8 +16,13 @@
  */
 package it.polimi.modaclouds.monitoring.dcfactory.wrappers;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -41,6 +46,10 @@ public class DDAConnector {
 	private RSP_services_csparql_API csparql_api;
 	private ExecutorService execService = Executors.newCachedThreadPool();
 	private String ddaURL;
+	private Map<String, Model> modelByMetric = new HashMap<String, Model>();
+	private Timer timer = new Timer();
+	private boolean timerRunning = false;
+	private long delay = 1000;
 
 	public DDAConnector(String ddaURL) {
 		this.ddaURL = ddaURL;
@@ -60,29 +69,80 @@ public class DDAConnector {
 				monitoredResourceId);
 	}
 
-	public void sendAsyncMonitoringDatum(final String value,
-			final String metric, final String monitoredResourceId) {
-		execService.execute(new Runnable() {
-			@Override
-			public void run() {
-				send(Arrays.asList(new String[] { value }),
-						metric.toLowerCase(), monitoredResourceId);
-			}
-		});
+	/**
+	 * Data is buffered and sent all together after a predefined delay (e.g. 1 second)
+	 * 
+	 * @param value
+	 * @param metric
+	 * @param monitoredResourceId
+	 */
+	public synchronized void sendAsyncMonitoringDatum(String value,
+			String metric, String monitoredResourceId) {
+		metric = metric.toLowerCase();
+		String monDatumInstanceURI = DDAOntology.MonitoringDatum + "#"
+				+ UUID.randomUUID().toString();
+
+		Model model = modelByMetric.get(metric);
+		if (null == model) {
+			model = ModelFactory.createDefaultModel();
+			modelByMetric.put(metric, model);
+		}
+		addDatumToModel(model, monDatumInstanceURI, value, metric,
+				monitoredResourceId);
+		if (!timerRunning) {
+			timerRunning = true;
+			timer.schedule(new TimerTask() {
+				@Override
+				public void run() {
+					timeIsUp();
+				}
+			}, delay);
+		}
+	}
+
+	private synchronized void timeIsUp() {
+		for (final String metric : modelByMetric.keySet()) {
+			execService.execute(new Runnable() {
+				@Override
+				public void run() {
+					send(modelByMetric.get(metric), metric);
+				}
+			});
+		}
+		modelByMetric.clear();
+		timerRunning = false;
+	}
+
+	private void send(Model model, String metric) {
+		String streamURI = getStreamURI(metric);
+		try {
+			csparql_api.feedStream(streamURI, model);
+			logger.info("Monitoring data sent to {} on stream {}", ddaURL,
+					streamURI);
+		} catch (ServerErrorException | StreamErrorException e) {
+			logger.error("Error while sending monitoring datum to {}", ddaURL,
+					e);
+		}
+	}
+
+	private void addDatumToModel(Model m, String datumUri, String value,
+			String metric, String monitoredResourceId) {
+		m.createResource(datumUri)
+				.addProperty(RDF.type, DDAOntology.MonitoringDatum)
+				.addProperty(DDAOntology.metric,
+						m.createTypedLiteral(metric, XSDDatatype.XSDstring))
+				.addProperty(DDAOntology.value,
+						m.createTypedLiteral(value, XSDDatatype.XSDdouble))
+				.addProperty(
+						DDAOntology.resourceId,
+						m.createTypedLiteral(monitoredResourceId,
+								XSDDatatype.XSDstring));
 	}
 
 	private void send(List<String> values, String metric,
 			String monitoredResourceId) {
 		Model m = createModel(values, metric, monitoredResourceId);
-		String streamURI = getStreamURI(metric);
-		try {
-			csparql_api.feedStream(streamURI, m);
-			logger.info("Monitoring data sent to {}: {} {} {}", ddaURL,
-					monitoredResourceId, metric, values);
-		} catch (ServerErrorException | StreamErrorException e) {
-			logger.error("Error while sending monitoring datum to {}", ddaURL,
-					e);
-		}
+		send(m, metric);
 	}
 
 	private String getStreamURI(String metric) {
@@ -96,16 +156,8 @@ public class DDAConnector {
 		for (String value : values) {
 			String monDatumInstanceURI = DDAOntology.MonitoringDatum + "#"
 					+ UUID.randomUUID().toString();
-			m.createResource(monDatumInstanceURI)
-					.addProperty(RDF.type, DDAOntology.MonitoringDatum)
-					.addProperty(DDAOntology.metric,
-							m.createTypedLiteral(metric, XSDDatatype.XSDstring))
-					.addProperty(DDAOntology.value,
-							m.createTypedLiteral(value, XSDDatatype.XSDdouble))
-					.addProperty(
-							DDAOntology.resourceId,
-							m.createTypedLiteral(monitoredResourceId,
-									XSDDatatype.XSDstring));
+			addDatumToModel(m, monDatumInstanceURI, value, metric,
+					monitoredResourceId);
 		}
 		return m;
 	}
