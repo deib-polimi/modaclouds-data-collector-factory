@@ -45,3 +45,11 @@ Create your data collector factory by extending class DataCollectorFactory.
 
 Have a look at the [javadoc](http://deib-polimi.github.io/modaclouds-data-collector-factory) 
 for further details.
+
+## Change List
+
+v0.3:
+* updated to knowledge-base-api 2.2
+* updated to qos-models 2.2
+* refactoring (API changed)
+* now using a buffer for sending monitoring data asynchronously: when method sendAsyncMonitoringDatum is called the datum is added to the buffer and a 1 second timer is started (unless already running); when timeout occurs all data in the buffer are sent and the buffer is emptied.
