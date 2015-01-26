@@ -16,7 +16,6 @@
  */
 package it.polimi.modaclouds.monitoring.dcfactory.wrappers;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -70,7 +69,8 @@ public class DDAConnector {
 	}
 
 	/**
-	 * Data is buffered and sent all together after a predefined delay (e.g. 1 second)
+	 * Data is buffered and sent all together after a predefined delay (e.g. 1
+	 * second)
 	 * 
 	 * @param value
 	 * @param metric
@@ -102,12 +102,8 @@ public class DDAConnector {
 
 	private synchronized void timeIsUp() {
 		for (final String metric : modelByMetric.keySet()) {
-			execService.execute(new Runnable() {
-				@Override
-				public void run() {
-					send(modelByMetric.get(metric), metric);
-				}
-			});
+			execService.execute(new SenderTask(modelByMetric.get(metric),
+					metric));
 		}
 		modelByMetric.clear();
 		timerRunning = false;
@@ -160,6 +156,23 @@ public class DDAConnector {
 					monitoredResourceId);
 		}
 		return m;
+	}
+
+	public class SenderTask implements Runnable {
+
+		private Model model;
+		private String metric;
+
+		public SenderTask(Model model, String metric) {
+			this.model = model;
+			this.metric = metric;
+		}
+
+		@Override
+		public void run() {
+			send(model, metric);
+		}
+
 	}
 
 }

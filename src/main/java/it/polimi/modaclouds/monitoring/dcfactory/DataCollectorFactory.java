@@ -131,7 +131,7 @@ public abstract class DataCollectorFactory {
 						.get(dcConfig.getMonitoredMetric());
 				if (configsPerMetric == null) {
 					configsPerMetric = new HashSet<DCConfig>();
-					newDCsConfigByMetric.put(dcConfig.getMonitoredMetric(),
+					newDCsConfigByMetric.put(dcConfig.getMonitoredMetric().toLowerCase(),
 							configsPerMetric);
 				}
 				configsPerMetric.add(dcConfig);
@@ -171,7 +171,7 @@ public abstract class DataCollectorFactory {
 		Set<DCConfig> selectedConfig = new HashSet<DCConfig>();
 		Set<DCConfig> allDCsConfigs;
 		if (monitoredMetric != null)
-			allDCsConfigs = dCsConfigByMetric.get(monitoredMetric);
+			allDCsConfigs = dCsConfigByMetric.get(monitoredMetric.toLowerCase());
 		else
 			allDCsConfigs = this.allDCsConfigs;
 		if (allDCsConfigs != null) {

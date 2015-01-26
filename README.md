@@ -48,6 +48,9 @@ for further details.
 
 ## Change List
 
+v0.3.1:
+* bug fix
+
 v0.3:
 * updated to knowledge-base-api 2.2
 * updated to qos-models 2.2
