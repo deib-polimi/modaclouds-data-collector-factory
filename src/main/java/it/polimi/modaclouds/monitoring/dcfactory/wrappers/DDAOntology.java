@@ -24,6 +24,7 @@ import com.hp.hpl.jena.rdf.model.Property;
 
 public class DDAOntology {
 
+	public static final String StreamBaseURI = "http://www.modaclouds.eu/streams/";
 	public static final String URI = "http://www.modaclouds.eu/rdfs/1.0/monitoringdata#";
 	public static String prefix = "modamd";
 

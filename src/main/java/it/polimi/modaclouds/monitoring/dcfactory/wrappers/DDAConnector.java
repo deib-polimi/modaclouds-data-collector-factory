@@ -16,6 +16,10 @@
  */
 package it.polimi.modaclouds.monitoring.dcfactory.wrappers;
 
+import it.polimi.deib.csparql_rest_api.RSP_services_csparql_API;
+import it.polimi.deib.csparql_rest_api.exception.ServerErrorException;
+import it.polimi.deib.csparql_rest_api.exception.StreamErrorException;
+
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -28,10 +32,6 @@ import java.util.concurrent.Executors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import polimi.deib.csparql_rest_api.RSP_services_csparql_API;
-import polimi.deib.csparql_rest_api.exception.ServerErrorException;
-import polimi.deib.csparql_rest_api.exception.StreamErrorException;
 
 import com.hp.hpl.jena.datatypes.xsd.XSDDatatype;
 import com.hp.hpl.jena.rdf.model.Model;
@@ -141,8 +141,8 @@ public class DDAConnector {
 		send(m, metric);
 	}
 
-	private String getStreamURI(String metric) {
-		String streamURI = "http://www.modaclouds.eu/streams/" + metric;
+	public static String getStreamURI(String metric) {
+		String streamURI = DDAOntology.StreamBaseURI + metric.toLowerCase();
 		return streamURI;
 	}
 
