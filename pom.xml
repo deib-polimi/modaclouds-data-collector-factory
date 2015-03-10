@@ -169,7 +169,7 @@
 			<plugin>
 				<groupId>com.github.github</groupId>
 				<artifactId>site-maven-plugin</artifactId>
-				<version>0.10</version>
+				<version>0.11</version>
 				<configuration>
 					<merge>true</merge> <!-- deploy without removing existing artifacts on the repo -->
 					<message>Maven artifacts for ${project.artifactId}
