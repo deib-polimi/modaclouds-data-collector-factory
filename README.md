@@ -24,10 +24,6 @@ Add the following repositories to your pom.xml:
 		<id>deib-polimi-releases</id>
 		<url>https://github.com/deib-polimi/deib-polimi-mvn-repo/raw/master/releases</url>
 	</repository>
-	<repository>
-		<id>deib-polimi-snapshots</id>
-		<url>https://github.com/deib-polimi/deib-polimi-mvn-repo/raw/master/snapshots</url>
-	</repository>
 </repositories>
 ```
 
@@ -37,7 +33,7 @@ and the following dependency:
 <dependency>
 	<groupId>it.polimi.modaclouds.monitoring</groupId>
 	<artifactId>data-collector-factory</artifactId>
-	<version>0.2.2</version>
+	<version>VERSION</version>
 </dependency>
 ```
 
