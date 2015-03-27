@@ -18,7 +18,6 @@ package it.polimi.modaclouds.monitoring.dcfactory;
 
 import it.polimi.modaclouds.monitoring.dcfactory.wrappers.DDAConnector;
 import it.polimi.modaclouds.monitoring.dcfactory.wrappers.KBConnector;
-import it.polimi.modaclouds.qos_models.monitoring_ontology.MOVocabulary;
 import it.polimi.modaclouds.qos_models.monitoring_ontology.Resource;
 
 import java.util.HashMap;
@@ -40,20 +39,15 @@ public abstract class DataCollectorFactory {
 	private final Logger logger = LoggerFactory
 			.getLogger(DataCollectorFactory.class);
 
-	private DDAConnector dda;
+	protected DDAConnector dda;
 	private ScheduledExecutorService executorService = Executors
 			.newSingleThreadScheduledExecutor();
 	private ScheduledFuture<?> kbSyncExecutorHandler;
 	private Map<String, Set<DCConfig>> dCsConfigByMetric;
 	private Set<DCConfig> allDCsConfigs;
-	private KBConnector kb;
-	// private int kbSyncPeriod;
+	protected KBConnector kb;
 	private boolean isSyncingWithKB = false;
 
-	// private Set<String> monitoredResourcesIds;
-	// private Set<String> monitoredMetrics;
-
-	// private Set<DataCollector> installedDataCollectors;
 
 	/**
 	 * This method will be called whenever synchronization with KB ends. The
@@ -62,9 +56,9 @@ public abstract class DataCollectorFactory {
 	 */
 	protected abstract void syncedWithKB();
 
-	public DataCollectorFactory(DDAConnector dda, KBConnector kb) {
-		this.dda = dda;
-		this.kb = kb;
+	public DataCollectorFactory(String ddaUrl, String kbUrl) {
+		this.dda = new DDAConnector(ddaUrl);
+		this.kb = new KBConnector(kbUrl);
 		dCsConfigByMetric = new HashMap<String, Set<DCConfig>>();
 		allDCsConfigs = new HashSet<DCConfig>();
 	}
@@ -142,17 +136,11 @@ public abstract class DataCollectorFactory {
 		syncedWithKB();
 	}
 
-	public boolean monitoringRequired(String resourceId, DCConfig dcConfig) {
-		if (dcConfig.getMonitoredResourcesIds().contains(resourceId))
+	public boolean monitoringRequired(Resource resource, DCConfig dcConfig) {
+		if (dcConfig.getMonitoredResourcesIds().contains(resource.getId()))
 			return true;
 		if (!dcConfig.getMonitoredResourcesIds().isEmpty())
 			return false;
-		Resource resource = kb.getResourceById(resourceId);
-		if (resource == null) {
-			logger.error("There is no resource with {} {} on the KB",
-					MOVocabulary.resourceIdParameterName, resourceId);
-			return false;
-		}
 		for (String type : dcConfig.getMonitoredResourcesTypes()) {
 			if (type.equalsIgnoreCase(resource.getType()))
 				return true;
@@ -166,7 +154,7 @@ public abstract class DataCollectorFactory {
 		return false;
 	}
 
-	public Set<DCConfig> getConfiguration(String resourceId,
+	public Set<DCConfig> getConfiguration(Resource resource,
 			String monitoredMetric) {
 		Set<DCConfig> selectedConfig = new HashSet<DCConfig>();
 		Set<DCConfig> allDCsConfigs;
@@ -176,8 +164,8 @@ public abstract class DataCollectorFactory {
 			allDCsConfigs = this.allDCsConfigs;
 		if (allDCsConfigs != null) {
 			for (DCConfig dcConfig : allDCsConfigs) {
-				if (resourceId == null
-						|| monitoringRequired(resourceId, dcConfig)) {
+				if (resource == null
+						|| monitoringRequired(resource, dcConfig)) {
 					selectedConfig.add(dcConfig);
 				}
 			}
@@ -193,9 +181,9 @@ public abstract class DataCollectorFactory {
 	 * @param monitoredResourceId
 	 */
 	public void sendSyncMonitoringDatum(String value, String metric,
-			String monitoredResourceId) {
+			Resource resource) {
 		dda.sendSyncMonitoringDatum(value, metric.toLowerCase(),
-				monitoredResourceId);
+				resource);
 	}
 	
 	/**
@@ -206,9 +194,9 @@ public abstract class DataCollectorFactory {
 	 * @param monitoredResourceId
 	 */
 	public void sendSyncMonitoringData(List<String> values, String metric,
-			String monitoredResourceId) {
+			Resource resource) {
 		dda.sendSyncMonitoringData(values, metric.toLowerCase(),
-				monitoredResourceId);
+				resource);
 	}
 
 	/**
@@ -219,8 +207,8 @@ public abstract class DataCollectorFactory {
 	 * @param monitoredResourceId
 	 */
 	public void sendAsyncMonitoringDatum(String value, String metric,
-			String monitoredResourceId) {
+			Resource resource) {
 		dda.sendAsyncMonitoringDatum(value, metric.toLowerCase(),
-				monitoredResourceId);
+				resource);
 	}
 }

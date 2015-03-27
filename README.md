@@ -48,6 +48,11 @@ for further details.
 
 ## Change List
 
+v0.3.3:
+* fixed a problem that caused the KB to be overloaded with requests
+* updated to [knowledge-base-api 2.3.1](https://github.com/deib-polimi/modaclouds-knowledge-base-api/releases/tag/v2.3.1)
+* updated to [qos-models 2.4.1](https://github.com/deib-polimi/modaclouds-qos-models/releases/tag/v2.4.1)
+
 v0.3.1:
 * bug fix
 

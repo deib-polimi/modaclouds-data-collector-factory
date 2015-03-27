@@ -23,7 +23,6 @@ import it.polimi.modaclouds.monitoring.kb.api.FusekiKBAPI;
 import it.polimi.modaclouds.qos_models.monitoring_ontology.MOVocabulary;
 import it.polimi.modaclouds.qos_models.monitoring_ontology.Resource;
 
-import java.util.HashSet;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -52,6 +51,11 @@ public class KBConnector {
 		return allConfigs;
 	}
 
+	/**
+	 * 
+	 * @param resourceId
+	 * @return the resource if exists, null otherwise
+	 */
 	public Resource getResourceById(String resourceId) {
 		try {
 			return (Resource) fusekiKBAPI.getEntityById(resourceId,

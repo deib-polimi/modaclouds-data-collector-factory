@@ -19,6 +19,7 @@ package it.polimi.modaclouds.monitoring.dcfactory.wrappers;
 import it.polimi.deib.csparql_rest_api.RSP_services_csparql_API;
 import it.polimi.deib.csparql_rest_api.exception.ServerErrorException;
 import it.polimi.deib.csparql_rest_api.exception.StreamErrorException;
+import it.polimi.modaclouds.qos_models.monitoring_ontology.Resource;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -58,26 +59,29 @@ public class DDAConnector {
 	}
 
 	public void sendSyncMonitoringData(List<String> values, String metric,
-			String monitoredResourceId) {
-		send(values, metric, monitoredResourceId);
+			Resource resource) {
+		send(values, metric, resource);
 	}
 
 	public void sendSyncMonitoringDatum(String value, String metric,
-			String monitoredResourceId) {
+			Resource resource) {
+		logger.info("Sending datum synchronously: {} {} {}", resource.getId(), metric,
+				value);
 		send(Arrays.asList(new String[] { value }), metric.toLowerCase(),
-				monitoredResourceId);
+				resource);
 	}
 
 	/**
-	 * Data is buffered and sent all together after a predefined delay (e.g. 1
-	 * second)
+	 * Data is buffered and sent all together after a delay of 1 second
 	 * 
 	 * @param value
 	 * @param metric
 	 * @param monitoredResourceId
 	 */
 	public synchronized void sendAsyncMonitoringDatum(String value,
-			String metric, String monitoredResourceId) {
+			String metric, Resource resource) {
+		logger.info(
+				"Sending datum asynchronously: {} {} {}", resource.getId(), metric, value);
 		metric = metric.toLowerCase();
 		String monDatumInstanceURI = DDAOntology.MonitoringDatum + "#"
 				+ UUID.randomUUID().toString();
@@ -87,8 +91,7 @@ public class DDAConnector {
 			model = ModelFactory.createDefaultModel();
 			modelByMetric.put(metric, model);
 		}
-		addDatumToModel(model, monDatumInstanceURI, value, metric,
-				monitoredResourceId);
+		addDatumToModel(model, monDatumInstanceURI, value, metric, resource);
 		if (!timerRunning) {
 			timerRunning = true;
 			timer.schedule(new TimerTask() {
@@ -112,17 +115,18 @@ public class DDAConnector {
 	private void send(Model model, String metric) {
 		String streamURI = getStreamURI(metric);
 		try {
-			csparql_api.feedStream(streamURI, model);
-			logger.info("Monitoring data sent to {} on stream {}", ddaURL,
+			logger.debug("Sending monitoring datum to {} on stream {}", ddaURL,
 					streamURI);
+			csparql_api.feedStream(streamURI, model);
 		} catch (ServerErrorException | StreamErrorException e) {
-			logger.error("Error while sending monitoring datum to {}", ddaURL,
-					e);
+			logger.error(
+					"Error while sending monitoring datum to {}: {}",
+					ddaURL, e.getMessage());
 		}
 	}
 
 	private void addDatumToModel(Model m, String datumUri, String value,
-			String metric, String monitoredResourceId) {
+			String metric, Resource resource) {
 		m.createResource(datumUri)
 				.addProperty(RDF.type, DDAOntology.MonitoringDatum)
 				.addProperty(DDAOntology.metric,
@@ -131,13 +135,13 @@ public class DDAConnector {
 						m.createTypedLiteral(value, XSDDatatype.XSDdouble))
 				.addProperty(
 						DDAOntology.resourceId,
-						m.createTypedLiteral(monitoredResourceId,
+						m.createTypedLiteral(resource.getId(),
 								XSDDatatype.XSDstring));
 	}
 
 	private void send(List<String> values, String metric,
-			String monitoredResourceId) {
-		Model m = createModel(values, metric, monitoredResourceId);
+			Resource resource) {
+		Model m = createModel(values, metric, resource);
 		send(m, metric);
 	}
 
@@ -147,13 +151,13 @@ public class DDAConnector {
 	}
 
 	private Model createModel(List<String> values, String metric,
-			String monitoredResourceId) {
+			Resource resource) {
 		Model m = ModelFactory.createDefaultModel();
 		for (String value : values) {
 			String monDatumInstanceURI = DDAOntology.MonitoringDatum + "#"
 					+ UUID.randomUUID().toString();
 			addDatumToModel(m, monDatumInstanceURI, value, metric,
-					monitoredResourceId);
+					resource);
 		}
 		return m;
 	}
