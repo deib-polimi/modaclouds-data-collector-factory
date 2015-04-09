@@ -71,9 +71,8 @@ public abstract class DataCollectorFactory {
 	 *            Interval in seconds between two subsequent synchronizations
 	 */
 	public void startSyncingWithKB(int kbSyncPeriod) {
-		logger.info("Starting synchronization with KB...");
 		if (isSyncingWithKB) {
-			logger.error("The Data Collector Factory is already syncing with KB");
+			logger.warn("Synchronization with KB already started");
 			return;
 		}
 		kbSyncExecutorHandler = executorService.scheduleWithFixedDelay(
@@ -94,7 +93,6 @@ public abstract class DataCollectorFactory {
 					}
 				}, 0, kbSyncPeriod, TimeUnit.SECONDS);
 		setIsSyncingWithKB(true);
-		logger.info("Syncing with KB started.");
 	}
 
 	public void stopSyncingWithKB() {
@@ -116,7 +114,7 @@ public abstract class DataCollectorFactory {
 	}
 
 	private void syncWithKB() {
-		logger.info("Syncing with KB...");
+		logger.info("Syncing with KB");
 		allDCsConfigs = kb.getAllDCsConfig();
 		Map<String, Set<DCConfig>> newDCsConfigByMetric = new HashMap<String, Set<DCConfig>>();
 		if (allDCsConfigs != null) {
@@ -132,7 +130,7 @@ public abstract class DataCollectorFactory {
 			}
 		}
 		dCsConfigByMetric = newDCsConfigByMetric;
-		logger.info("Data collectors configuration synced with KB.");
+		logger.debug("Current dcs configuration: {}", dCsConfigByMetric.toString());
 		syncedWithKB();
 	}
 
